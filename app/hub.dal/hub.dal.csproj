@@ -4,4 +4,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\hub.dbMigration\hub.dbMigration.csproj" />
+    <ProjectReference Include="..\hub.domain\hub.domain.csproj" />
+  </ItemGroup>
+
 </Project>

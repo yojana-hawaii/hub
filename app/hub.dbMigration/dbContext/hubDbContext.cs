@@ -4,7 +4,7 @@ using System.Text;
 
 namespace hub.dbMigration.dbContext
 {
-    class hubDbContext
+    class HubDbContext
     {
     }
 }

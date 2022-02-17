@@ -1,12 +1,16 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace hub.mvc
@@ -23,6 +27,46 @@ namespace hub.mvc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // use open id connect with adfs
+            services.AddAuthentication(options =>
+            {
+                //  check if user has authentication cookie -> if they dont then default is open id connect
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddOpenIdConnect(options =>
+            {
+                // from appsettings.json or secret
+                options.MetadataAddress = Configuration["Adfs:address"];
+                options.ClientId = Configuration["Adfs:clientId"];
+
+                options.SignInScheme = "Cookies";
+                options.RequireHttpsMetadata = true;
+                options.ResponseType = OpenIdConnectResponseType.Code;
+                options.UsePkce = false;
+
+                options.Scope.Clear();
+                options.Scope.Add("openid");
+
+
+                options.SaveTokens = true;
+            })
+            .AddCookie(options =>
+            {
+                options.AccessDeniedPath = "/";
+            }
+            );
+
+            //mapping AD user to claims role.
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TestAdmin", policyBuilder =>
+                    policyBuilder.RequireClaim(ClaimTypes.Role, "Test Admin")
+                );
+                options.AddPolicy("TestUser", policyBuilder =>
+                    policyBuilder.RequireClaim(ClaimTypes.Role, "Test User")
+                );
+            });
             services.AddControllersWithViews();
         }
 
@@ -44,6 +88,7 @@ namespace hub.mvc
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

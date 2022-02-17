@@ -1,4 +1,5 @@
 ﻿using hub.mvc.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -23,7 +24,13 @@ namespace hub.mvc.Controllers
             return View();
         }
 
+        [Authorize(Policy = "TestUser")]
         public IActionResult Privacy()
+        {
+            return View();
+        }
+        [Authorize(Policy = "TestAdmin")]
+        public IActionResult AdfsClaims()
         {
             return View();
         }

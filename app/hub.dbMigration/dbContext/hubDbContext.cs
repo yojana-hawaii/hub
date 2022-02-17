@@ -1,10 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using hub.domain.model.directory;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 namespace hub.dbMigration.dbContext
 {
-    class HubDbContext
+    public class HubDbContext : DbContext
     {
+        public HubDbContext(DbContextOptions<HubDbContext> options) : base(options) { }
+
+
+        public DbSet<Employee> Employees { get; set; }
+        public DbSet<JobTitle> JobTitles { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Location> Locations { get; set; }
+        //public DbSet<Specialist> Specialists { get; set; }
+        //public DbSet<Fax> Fax { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            //apply all fluent api configuration to entity using reflection
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        }
     }
 }

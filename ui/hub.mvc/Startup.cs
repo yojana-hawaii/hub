@@ -1,17 +1,16 @@
+using hub.dal.interfaces.directory;
+using hub.dal.repository.directory;
+using hub.dbMigration.dbContext;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace hub.mvc
 {
@@ -27,6 +26,17 @@ namespace hub.mvc
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<HubDbContext>(
+                options => options.UseSqlServer(
+                    Configuration.GetConnectionString("LocalDbConnection")
+                    )
+                );
+            services.AddSingleton(Configuration);
+            services.AddScoped<IEmployee, EmployeeRepository>();
+            services.AddScoped<ILocation, LocationRepository>();
+            services.AddScoped<IJobTitle, JobTitleRepository>();
+            services.AddScoped<IDepartment, DepartmentRepository>();
+
             // use open id connect with adfs
             services.AddAuthentication(options =>
             {

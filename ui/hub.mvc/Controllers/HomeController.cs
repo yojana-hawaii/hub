@@ -1,4 +1,7 @@
-﻿using hub.mvc.Models;
+﻿using hub.dal.interfaces.directory;
+using hub.domain.model.directory;
+using hub.mvc.Models;
+using hub.mvc.ViewModel;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -16,18 +19,44 @@ namespace hub.mvc.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IEmployee _employee;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IEmployee employee)
         {
             _logger = logger;
+            _employee = employee;
         }
 
+        //Display all employee as default
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            var employees = _employee.GetAllEmployees();
+            var employeeViewModel = ConvertToEmployeeViewModel(employees);
+            return View(employeeViewModel);
+        }
+        
+        //Helper function to create view model
+        private object ConvertToEmployeeViewModel(IEnumerable<Employee> employees)
+        {
+            var empViewModel = employees
+                .Select(emp => new EmployeeViewModel
+                {
+                    EmployeeId = emp.EmployeeId,
+                    Name = _employee.GetFullName(emp.EmployeeId),
+                    Location = _employee.GetEmployeeLocation(emp.EmployeeId),
+                    JobTitle = _employee.GetEmployeeJobTitle(emp.EmployeeId),
+                    Department = _employee.GetEmployeeDepartment(emp.EmployeeId),
+                    Phone = _employee.GetEmployeePhone(emp.EmployeeId),
+                    Email = emp.Email,
+                    Keyword = emp.Keyword,
+                });
+
+
+            return empViewModel;
         }
 
-         //Logout of ADFS and redirect to homepage. Call private method coz it did not logout properly. Stackoverflow
+        //Logout of ADFS and redirect to homepage. Call private method coz it did not logout properly. Stackoverflow
         public async Task Logout()
         {
             await CustomLogout("/");

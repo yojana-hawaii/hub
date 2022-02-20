@@ -56,6 +56,33 @@ namespace hub.mvc.Controllers
             return empViewModel;
         }
 
+
+        //display user profile of logged in user
+        public IActionResult UserProfile()
+        {
+            var adfs_username = User.Identity.Name;
+            Employee loggedInUser = _employee.GetEmployeeByADUserName(adfs_username);
+            UserProfileViewModel userProfileViewModel = ConvertToUserProfileViewModel(loggedInUser);
+            return View(userProfileViewModel);
+        }
+
+        private UserProfileViewModel ConvertToUserProfileViewModel(Employee loggedInUser)
+        {
+            var _message = "Good";
+            if (loggedInUser == null || string.IsNullOrEmpty(loggedInUser.Username))
+            {
+                _message = "Problem";
+            }
+
+            UserProfileViewModel userProfileVM = new UserProfileViewModel()
+            {
+                Title = "User Profile",
+                Employee = loggedInUser,
+                Message = _message,
+            };
+            return userProfileVM;
+        }
+
         //Logout of ADFS and redirect to homepage. Call private method coz it did not logout properly. Stackoverflow
         public async Task Logout()
         {

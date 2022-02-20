@@ -62,3 +62,14 @@ from Employees emp
 	left join Employees sup on emp.PrimaryManagerId = sup.EmployeeId
 
 go
+
+
+/*
+begin tran
+update e
+set e.email = 'test@email.com'
+--select * 
+from Employees e
+where e.employeeid = 1;
+*/
+--commit

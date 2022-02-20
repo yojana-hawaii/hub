@@ -1,0 +1,134 @@
+﻿@model hub.mvc.ViewModel.UserProfileViewModel
+
+@if (Model.Message.ToLower() == "problem")
+{
+    <h2>Hello @User.Identity.Name</h2>
+    <p class="text-danger">
+        Your profile was not found. Admin account, Students and Vendors do not have profile.
+    </p>
+    <p>
+        Please email IT@kphc.org if profile should be present.
+    </p>
+}
+else
+{
+
+
+    <div class="row">
+        <div class="col-sm-5">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">@Model.Employee.FirstName</h5>
+                    <div class="row">
+
+                        <div class="col-sm-4 text-black-50">
+                            <p>Username </p>
+                            <p>Email </p>
+                            <p>Job Title </p>
+                            <p>Department </p>
+                            <p>Extension </p>
+                            <p>Full Number </p>
+                            <p>Location </p>
+                            <p>Manager</p>
+
+                        </div>
+
+                        <div class="col-sm-8 text-black-50">
+                            <p>@Model.Employee.Username.ToLower()</p>
+                            <p>@Model.Employee.Email.ToLower()</p>
+                            <p>
+                                @if (Model.Employee.JobTitle != null)
+                                {
+                                    @Model.Employee.JobTitle.JobTitleName;
+                                }
+                                else
+                                {
+                                    @Model.Employee.JobTitle;
+                                }
+                            </p>
+                            <p>
+                                @if (Model.Employee.Department != null)
+                                {
+                                    @Model.Employee.Department.DepartmentName;
+                                }
+                                else
+                                {
+                                    @Model.Employee.Department;
+                                }
+                            </p>
+                            <p>@Model.Employee.Extension</p>
+                            <p>@Model.Employee.FullNumber</p>
+                            <p>
+                                @if (Model.Employee.Location != null)
+                                {
+                                    @Model.Employee.Location.LocationName;
+                                }
+                                else
+                                {
+                                    @Model.Employee.Location;
+                                }
+                            </p>
+                            <p>
+                                @if (Model.Employee.PrimaryManager != null)
+                                {
+                                    @Model.Employee.PrimaryManager.FirstName;
+                                }
+                                else
+                                {
+                                    @Model.Employee.PrimaryManager;
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-7">
+            <div class="card show">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Other Data</h5>
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <b>Username: </b>
+                        </div>
+
+                        <div class="col-sm-8">
+                            @Model.Employee.Email
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+    @if (Model.Employee.EmployeeId == 9)
+    {
+        <div class="mt-5"></div>
+        <div class="card shadow-lg">
+            <div class="card-body">
+                <h5 class="card-title text-center text-primary">Claims Returned from ADFS</h5>
+
+                <table class="table table-borderless table-striped table-hover">
+                    <tr>
+                        <th>Claim Type</th>
+                        <th>Claim Value</th>
+                    </tr>
+
+                    @foreach (var claim in User.Claims)
+                    {
+                        <tr>
+                            <td>@claim.Type</td>
+                            <td>@claim.Value</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    }
+}

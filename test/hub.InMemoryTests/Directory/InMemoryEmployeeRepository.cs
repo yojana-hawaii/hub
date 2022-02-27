@@ -22,7 +22,6 @@ namespace hub.InMemoryTests.Directory
         private (int, string) missingLastName;
         private (int, string, string) _invalid;
 
-        private string empErrorMessage;
 
 
         [SetUp]
@@ -34,15 +33,14 @@ namespace hub.InMemoryTests.Directory
             jc = (9, "jc", "l", "c, j", "123-9876", "123");
             dc = (5, "dc", "dc@email.com", "Accounting");
             ls = (2, "ls", "Exec Building", "CFO", 4, "963-8520");
-            _invalid = (99, "hs", "hs@email.com");
-            empErrorMessage = "Employee not found";
+            _invalid = (-1, "", "xx");
             missingLastName = (12, "x");
             empX = (3, "am", "ls", "Systems Administrator", "IT Building", "IT", 2, "a", "987");
         }
 
       
         [Test]
-        public void GetAllEmployee_Valid_ReturnListOfEmployee()
+        public void GetAllEmployee_Valid_ReturnEmployeeList()
         {
             IEnumerable<Employee> emps = _empObj.GetAllEmployees();
 
@@ -51,28 +49,27 @@ namespace hub.InMemoryTests.Directory
             CollectionAssert.AllItemsAreUnique(emps);
             CollectionAssert.AllItemsAreNotNull(emps);
             Assert.That(emps.Count(e => e.Username == ceo.Item2), Is.EqualTo(1));
+
+            var oneEmp = emps.FirstOrDefault(e => e.EmployeeId == jc.Item1);
+            Assert.AreEqual(oneEmp.Username, jc.Item2);
         }
 
 
         [Test]
-        public void GetEmpById_ValidId_ReturnEmpObject()
+        public void GetEmployeeById_ValidId_ReturnOneEmployee()
         {
             Employee emp = _empObj.GetEmployeeById(ceo.Item1);
 
             Assert.AreEqual(ceo.Item3, emp.Email);
         }
         [Test]
-        public void GetEmpById_InValidId_ArgumentException()
+        public void GetEmployeeById_InValidId_ReturnOneNullEmployee()
         {
-            Assert.That(
-                    () => _empObj.GetEmployeeById(_invalid.Item1)
-                    ,
-                    Throws
-                    .TypeOf<ArgumentException>()
-                    .With
-                    .Property("Message")
-                    .Matches(empErrorMessage)
-                );
+            var emp = _empObj.GetEmployeeById(_invalid.Item1);
+
+            Assert.IsNotNull(emp);
+
+            Assert.AreEqual(_invalid.Item2, emp.Username);
         }
 
 
@@ -89,22 +86,17 @@ namespace hub.InMemoryTests.Directory
             Assert.That(missingLastName.Item2, Is.EqualTo(fullname));
         }
         [Test]
-        public void GetFullname_InvalidId_NullReferenceException()
+        public void GetFullname_InvalidId_ReturnOneNullEmployee()
         {
-            Assert.That(
-                    () => _empObj.GetFullName(_invalid.Item1)
-                    ,
-                    Throws
-                    .TypeOf<NullReferenceException>()
-                    .With
-                    .Property("Message")
-                    .Matches(empErrorMessage)
-                );
+            var fullName = _empObj.GetFullName(_invalid.Item1);
+            Assert.IsNotNull(fullName);
+
+            Assert.AreEqual(_invalid.Item2, fullName);
         }
 
 
         [Test]
-        public void GetDepartmentByEmpId_ValidId_ReturnDepartments()
+        public void GetEmployeeDepartment_ValidId_ReturnOneDepartment()
         {
             string dept = _empObj.GetEmployeeDepartment(dc.Item1);
 
@@ -112,19 +104,16 @@ namespace hub.InMemoryTests.Directory
             Assert.That(dept, Is.EqualTo(dc.Item4));
         }
         [Test]
-        public void GetDeptartmentByEmpId_InvalidId_ReturnBlank()
+        public void GetEmployeeDepartment_InvalidId_ReturnOneNullDepartment()
         {
-            // If I initialize here, exception thrown right and test fails
-            // So call in assert
-
             string dept = _empObj.GetEmployeeDepartment(_invalid.Item1);
             Assert.IsNotNull(dept);
-            Assert.That(dept, Is.EqualTo(""));
+            Assert.That(dept, Is.EqualTo(_invalid.Item2));
         }
 
 
         [Test]
-        public void GetJobByEmpId_ValidId_ReturnJob()
+        public void GetEmployeeJobTitle_ValidId_ReturnOneJobTitle()
         {
             string job = _empObj.GetEmployeeJobTitle(ls.Item1);
 
@@ -132,16 +121,16 @@ namespace hub.InMemoryTests.Directory
             Assert.That(job, Is.EqualTo(ls.Item4));
         }
         [Test]
-        public void GetJobByEmpId_InvalidId_ReturnBlank()
+        public void GetEmployeeJobTitle_InvalidId_ReturnOneNullJobTitle()
         {
             string job = _empObj.GetEmployeeJobTitle(_invalid.Item1);
             Assert.IsNotNull(job);
-            Assert.That(job, Is.EqualTo(""));
+            Assert.That(job, Is.EqualTo(_invalid.Item2));
         }
 
 
         [Test]
-        public void GetLocationByEmpId_validId_returnLocation()
+        public void GetEmployeeLocation_validId_ReturnOneLocation()
         {
             string loc = _empObj.GetEmployeeLocation(ls.Item1);
 
@@ -149,74 +138,17 @@ namespace hub.InMemoryTests.Directory
             Assert.That(loc, Is.EqualTo(ls.Item3));
         }
         [Test]
-        public void GetLocationByEmpId_InvalidId_NullReferenceException()
+        public void GetEmployeeLocation_InvalidId_ReturnOneNullLocation()
         {
             string loc = _empObj.GetEmployeeLocation(_invalid.Item1);
             Assert.IsNotNull(loc);
-            Assert.That(loc, Is.EqualTo(""));
+            Assert.That(loc, Is.EqualTo(_invalid.Item2));
         }
 
 
-        [Test]
-        public void GetManagerByEmpId_ValidId_ReturnManager()
-        {
-            Employee manager = _empObj.GetManager(jc.Item1);
-            Assert.IsNotNull(manager);
-            Assert.That(manager.FirstName, Is.EqualTo(jc.Item3));
-        }
-        [Test]
-        public void GetManagerByEmpId_InvalidId_NullReferenceException()
-        {
-            Assert.That(
-                () => _empObj.GetManager(_invalid.Item1)
-                ,
-                Throws
-                .TypeOf<NullReferenceException>()
-                .With
-                .Property("Message")
-                .Matches(empErrorMessage)
-                );
-        }
-        [Test]
-        public void GetManagerByEmpId_ValidIdNoManager_ReturnNull()
-        {
-            var manager = _empObj.GetManager(ceo.Item1);
-            Assert.IsNull(manager);
-        }
-
 
         [Test]
-        public void GetStaffByManagerId_ValidId_ReturnStaff()
-        {
-            var staff = _empObj.GetStaffs(ls.Item1);
-            Assert.IsNotNull(staff);
-            Assert.That(ls.Item5, Is.EqualTo(staff.Count()));
-            CollectionAssert.AllItemsAreNotNull(staff);
-            CollectionAssert.AllItemsAreUnique(staff);
-            Assert.That(staff.Count(s => s.Username == jc.Item2), Is.EqualTo(1));
-        }
-        [Test]
-        public void GetStaffByManagerId_InvalidId_NullReferenceException()
-        {
-            Assert.That(
-                    () => _empObj.GetStaffs(_invalid.Item1)
-                    ,
-                    Throws
-                    .TypeOf<NullReferenceException>()
-                    .With
-                    .Property("Message")
-                    .Matches(empErrorMessage)
-                );
-        }
-        [Test]
-        public void GetStaffByManagerId_ValidIdNoStaff_ReturnEmpty()
-        {
-            var staff = _empObj.GetStaffs(jc.Item1);
-            Assert.IsEmpty(staff);
-        }
-
-        [Test]
-        public void GetEmployeeByUsername_ValidUsername_ReturnEmployee()
+        public void GetEmployeeByADUserName_ValidUsername_ReturnOneEmployee()
         {
             //empX = (3, "am", "ls", "Systems Administrator", "IT Building", "IT", 2, "a");
             var emp = _empObj.GetEmployeeByADUserName(empX.Item2);
@@ -236,18 +168,15 @@ namespace hub.InMemoryTests.Directory
         }
 
         [Test]
-        public void GetEmployeeByUsername_Invalid_ArgumentException()
+        public void GetEmployeeByADUserName_InvalidUsername_ReturnOneNullEmployee()
         {
-            Assert.That(
-                    () => _empObj.GetEmployeeById(_invalid.Item1)
-                    ,
-                    Throws
-                    .TypeOf<ArgumentException>()
-                    .With
-                    .Property("Message")
-                    .Matches(empErrorMessage)
-                );
+            var emp = _empObj.GetEmployeeByADUserName(_invalid.Item3);
+
+            Assert.IsNotNull(emp);
+            Assert.AreEqual(_invalid.Item1, emp.EmployeeId);
+            Assert.AreEqual(_invalid.Item2, emp.Username);
         }
+
 
         [Test]
         public void GetEmployeePhone_ValidId_ReturnsFullAndExtension()
@@ -269,17 +198,90 @@ namespace hub.InMemoryTests.Directory
             Assert.AreEqual(ls.Item6, phone);
         }
         [Test]
-        public void GetEmployeePhone_InvalidId_NullReferenceException()
+        public void GetEmployeePhone_InvalidId_ReturnOneNullEmployeePhone()
         {
-            Assert.That(
-                    () => _empObj.GetEmployeePhone(_invalid.Item1)
-                    ,
-                    Throws
-                    .TypeOf<NullReferenceException>()
-                    .With
-                    .Property("Message")
-                    .Matches(empErrorMessage)
-                );
+            var phone = _empObj.GetEmployeePhone(_invalid.Item1);
+            Assert.IsNotNull(phone);
+            Assert.AreEqual(_invalid.Item2, phone);
+        }
+
+
+
+
+        [Test]
+        public void GetManager_ValidId_ReturnOneManager()
+        {
+            Employee manager = _empObj.GetManager(jc.Item1);
+            Assert.IsNotNull(manager);
+            Assert.That(manager.FirstName, Is.EqualTo(jc.Item3));
+        }
+        [Test]
+        public void GetManager_InvalidId_ReturnOneNullManager()
+        {
+            var manager = _empObj.GetManager(_invalid.Item1);
+            Assert.IsNotNull(manager);
+            Assert.AreEqual(manager.Username, _invalid.Item2);
+        }
+        [Test]
+        public void GetManager_ValidIdNoManager_ReturnNullManager()
+        {
+            var manager = _empObj.GetManager(ceo.Item1);
+            Assert.IsNotNull(manager);
+            Assert.AreEqual(manager.Username, _invalid.Item2);
+        }
+
+
+        [Test]
+        public void GetStaffs_ValidId_ReturnStaffList()
+        {
+            var staff = _empObj.GetStaffs(ls.Item1);
+            Assert.IsNotNull(staff);
+            Assert.That(ls.Item5, Is.EqualTo(staff.Count()));
+            CollectionAssert.AllItemsAreNotNull(staff);
+            CollectionAssert.AllItemsAreUnique(staff);
+            Assert.That(staff.Count(s => s.Username == jc.Item2), Is.EqualTo(1));
+        }
+        [Test]
+        public void GetStaffs_InvalidId_ReturnNulStaffList()
+        {
+            var staff = _empObj.GetStaffs(_invalid.Item1);
+
+            Assert.IsNotNull(staff);
+            Assert.That(1, Is.EqualTo(staff.Count()));
+            CollectionAssert.AllItemsAreNotNull(staff);
+            CollectionAssert.AllItemsAreUnique(staff);
+
+
+        }
+        [Test]
+        public void GetStaffs_ValidIdNoStaff_ReturnNullStaffList()
+        {
+            var staff = _empObj.GetStaffs(jc.Item1);
+            Assert.IsEmpty(staff);
+        }
+
+
+      
+        [Test]
+        public void GetEmployeeByKeyword_ValidString_ReturnEmployees()
+        {
+            var emps = _empObj.GetEmployeeByKeywordSearch(ls.Item2);
+            Assert.IsNotNull(emps);
+            Assert.That(1, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
+
+            var emps2 = _empObj.GetEmployeeByKeywordSearch("am");
+            Assert.IsNotNull(emps2);
+            Assert.That(2, Is.EqualTo(emps2.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps2);
+            CollectionAssert.AllItemsAreUnique(emps2);
+
+            var emps3 = _empObj.GetEmployeeByKeywordSearch("520");
+            Assert.IsNotNull(emps3);
+            Assert.That(1, Is.EqualTo(emps3.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps3);
+            CollectionAssert.AllItemsAreUnique(emps3);
         }
     }
 }

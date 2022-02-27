@@ -8,7 +8,6 @@ namespace hub.dal.interfaces.directory
     public interface IEmployee
     {
         IEnumerable<Employee> GetAllEmployees();
-        IEnumerable<Employee> GetAllNonEmployees();
 
         Employee GetEmployeeById(int empId);
         Employee GetEmployeeByADUserName(string username);

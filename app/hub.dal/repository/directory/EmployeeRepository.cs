@@ -11,15 +11,64 @@ namespace hub.dal.repository.directory
     public class EmployeeRepository : IEmployee
     {
         private readonly HubDbContext _context;
-        private readonly string _employeeExceptionMessage = "Employee not found";
+
+        private readonly Employee _nullEmp;
+        private readonly Employee _nullManager;
+        private readonly List<Employee> _nullStaff;
+        private readonly Location _nullLoc;
+        private readonly JobTitle _nullJob;
+        private readonly Department _nullDept;
 
 
         public EmployeeRepository(HubDbContext appDbContext)
         {
             _context = appDbContext;
+
+            //null object design pattern
+            _nullLoc = new Location()
+            {
+                LocationId = -1,
+                LocationName = ""
+            };
+            _nullJob = new JobTitle()
+            {
+                JobTitleId = -1,
+                JobTitleName = ""
+            };
+            _nullDept = new Department()
+            {
+                DepartmentId = -1,
+                DepartmentName = ""
+            };
+            _nullManager = new Employee()
+            {
+                EmployeeId = -1,
+                Username = ""
+            };
+            _nullStaff = new List<Employee>()
+            {
+                _nullManager
+            };
+            _nullEmp = new Employee()
+            {
+                EmployeeId = -1,
+                Username = "",
+                FirstName = "",
+                LastName = "",
+                Email = "",
+                Department = _nullDept,
+                JobTitle = _nullJob,
+                Location = _nullLoc,
+                PrimaryManager = _nullManager,
+                PrimaryStaff = _nullStaff
+            };
         }
 
 
+        private Employee GetNullEmployee()
+        {
+            return _nullEmp;
+        }
 
         public IEnumerable<Employee> GetAllEmployees()
         {
@@ -27,14 +76,8 @@ namespace hub.dal.repository.directory
                 .Include(e => e.Department)
                 .Include(e => e.JobTitle)
                 .Include(e => e.Location);
-            //.Where(emp => !emp.Keyword.Contains("*"));
         }
 
-        public IEnumerable<Employee> GetAllNonEmployees()
-        {
-            return _context.Employees
-                .Where(emp => emp.Keyword.Contains("*"));
-        }
 
         public Employee GetEmployeeById(int empId)
         {
@@ -42,130 +85,84 @@ namespace hub.dal.repository.directory
                 .FirstOrDefault(e => e.EmployeeId == empId);
 
             if (emp is null)
-                throw new ArgumentException(_employeeExceptionMessage, empId.ToString());
+                return GetNullEmployee();
 
             return emp;
         }
 
         public string GetFullName(int empId)
         {
-            try
-            {
-                var emp = GetEmployeeById(empId);
-                var _fullName = emp.LastName;
+            var emp = GetEmployeeById(empId);
+            var _fullName = emp.LastName;
 
-                if (!string.IsNullOrWhiteSpace(_fullName))
-                {
-                    if (!string.IsNullOrWhiteSpace(emp.FirstName))
-                    {
-                        _fullName += ", ";
-                    }
-                    _fullName += emp.FirstName;
-                }
-                else
-                {
-                    _fullName = emp.FirstName;
-                }
-                return _fullName;
-            }
-            catch
+            if (!string.IsNullOrWhiteSpace(_fullName))
             {
-                throw new NullReferenceException(_employeeExceptionMessage);
+                if (!string.IsNullOrWhiteSpace(emp.FirstName))
+                {
+                    _fullName += ", ";
+                }
+                _fullName += emp.FirstName;
             }
-
+            else
+            {
+                _fullName = emp.FirstName;
+            }
+            return _fullName;
         }
 
         public string GetEmployeePhone(int employeeId)
         {
-            try
-            {
-                var emp = GetEmployeeById(employeeId);
-                var _phone = emp.Extension;
+            var emp = GetEmployeeById(employeeId);
+            var _phone = emp.Extension;
 
-                if (!string.IsNullOrWhiteSpace(_phone))
-                {
-                    if (!string.IsNullOrWhiteSpace(emp.FullNumber))
-                    {
-                        _phone += " -> ";
-                    }
-                    _phone += emp.FullNumber;
-                }
-                else
-                {
-                    _phone = emp.FullNumber;
-                }
-                return _phone;
-            }
-            catch
+            if (!string.IsNullOrWhiteSpace(_phone))
             {
-                throw new NullReferenceException(_employeeExceptionMessage);
+                if (!string.IsNullOrWhiteSpace(emp.FullNumber))
+                {
+                    _phone += " -> ";
+                }
+                _phone += emp.FullNumber;
             }
+            else
+            {
+                _phone = emp.FullNumber;
+            }
+            if (_phone is null)
+                _phone = "";
+            return _phone;
         }
 
 
 
         public string GetEmployeeDepartment(int empId)
         {
-            string _dept;
-            try
-            {
-                _dept = GetEmployeeById(empId).Department.DepartmentName;
-            }
-            catch (Exception)
-            {
-                _dept = "";
-            }
-            return _dept;
+            return GetEmployeeById(empId).Department.DepartmentName;
         }
         public string GetEmployeeJobTitle(int empId)
         {
-            string _job;
-            try
-            {
-                _job = GetEmployeeById(empId).JobTitle.JobTitleName;
-            }
-            catch (Exception)
-            {
-                _job = "";
-            }
-            return _job;
+            return GetEmployeeById(empId).JobTitle.JobTitleName;
         }
         public string GetEmployeeLocation(int empId)
         {
-            string _loc;
-            try
-            {
-                _loc = GetEmployeeById(empId).Location.LocationName;
-            }
-            catch (Exception)
-            {
-                _loc = "";
-            }
-            return _loc;
+            return GetEmployeeById(empId).Location.LocationName;
         }
 
         public Employee GetManager(int empId)
         {
-            try
-            {
-                return GetEmployeeById(empId).PrimaryManager;
-            }
-            catch
-            {
-                throw new NullReferenceException(_employeeExceptionMessage);
-            }
+            var mngr = GetEmployeeById(empId).PrimaryManager;
+            if (mngr is null)
+                mngr = GetNullEmployee();
+
+            return mngr;
         }
 
         public IEnumerable<Employee> GetStaffs(int managerId)
         {
-            try
-            {
-                return GetEmployeeById(managerId).PrimaryStaff;
-            }
-            catch
-            {
-                throw new NullReferenceException(_employeeExceptionMessage);
-            }
+            var staff = GetEmployeeById(managerId).PrimaryStaff;
+            if (staff is null)
+                staff = new List<Employee>() { GetNullEmployee() };
+
+            return staff;
         }
 
         public Employee GetEmployeeByADUserName(string username)
@@ -174,12 +171,10 @@ namespace hub.dal.repository.directory
                 .Include(e => e.Department)
                 .Include(e => e.JobTitle)
                 .Include(e => e.Location)
-                .Include(e => e.PrimaryManager)
-                .Include(e => e.PrimaryStaff)
                 .FirstOrDefault(e => e.Username == username);
 
             if (emp is null)
-                throw new ArgumentException(_employeeExceptionMessage, username.ToString());
+                emp = _nullEmp;
 
             return emp;
         }
@@ -195,7 +190,18 @@ namespace hub.dal.repository.directory
 
                 foreach (var str in newSearch)
                 {
-                    matchingEmployees = employees.Where(emp => emp.Keyword.ToLower().Contains(str.ToLower()));
+                    //matchingEmployees = employees.Where(emp => emp.Keyword.ToLower().Contains(str.ToLower()));
+                    matchingEmployees = employees
+                        .Where(
+                        e => (e.LastName != null && e.LastName.Contains(str))
+                            || (e.FirstName != null && e.FirstName.Contains(str))
+                            || (e.Extension != null && e.Extension.Contains(str))
+                            || (e.FullNumber != null && e.FullNumber.Contains(str))
+                            || (e.Email != null && e.Email.Contains(str))
+                            || (e.JobTitle != null && e.JobTitle.JobTitleName.Contains(str))
+                            || (e.Department != null && e.Department.DepartmentName.Contains(str))
+                            || (e.Location != null && e.Location.LocationName.Contains(str))
+                        );
                 }
             }
 

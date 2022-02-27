@@ -11,12 +11,39 @@ namespace hub.dal.repository.directory
     public class JobTitleRepository : IJobTitle
     {
         private readonly HubDbContext _context;
-        private readonly string _jobTitleExceptionMessage = "Job Title not found";
+
+        private readonly JobTitle _nullJob;
+        private readonly List<Employee> _nullDeptEmployees;
+        private readonly Employee _nullEmp;
 
         public JobTitleRepository(HubDbContext context)
         {
             _context = context;
+
+            //null object design pattern.
+            _nullEmp = new Employee()
+            {
+                EmployeeId = -1,
+                Username = ""
+            };
+            _nullDeptEmployees = new List<Employee>
+            {
+                _nullEmp
+            };
+            _nullJob = new JobTitle()
+            {
+                JobTitleId = -1,
+                JobTitleName = "",
+                Employees = _nullDeptEmployees
+            };
         }
+
+        private JobTitle GetNullJobTitle()
+        {
+            return _nullJob;
+        }
+
+
         public IEnumerable<JobTitle> GetAllJobTitles()
         {
             return _context.JobTitles;
@@ -29,34 +56,24 @@ namespace hub.dal.repository.directory
                 .FirstOrDefault(j => j.JobTitleId == jobId);
 
             if (job is null)
-            {
-                throw new ArgumentException(_jobTitleExceptionMessage, jobId.ToString());
-            }
+                job = GetNullJobTitle();
             return job;
         }
 
         public IEnumerable<Employee> GetEmployeesByJobTitle(int jobId)
         {
-            try
-            {
-
-                return GetByJobTitleId(jobId)
-                    .Employees;
-            }
-            catch (ArgumentException)
-            {
-                throw new NullReferenceException(_jobTitleExceptionMessage);
-            }
+            return GetByJobTitleId(jobId)
+                .Employees;
         }
 
         public int GetJobTitleId(string titleName)
         {
             var job = _context.JobTitles
-                .Include(j => j.Employees)
                 .FirstOrDefault(j => j.JobTitleName == titleName);
 
             if (job is null)
-                throw new ArgumentException(_jobTitleExceptionMessage, titleName);
+                job = GetNullJobTitle();
+
             return job.JobTitleId;
         }
     }

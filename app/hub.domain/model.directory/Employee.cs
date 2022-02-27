@@ -24,7 +24,6 @@ namespace hub.domain.model.directory
 
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        //public string Name => $"{LastName}, {FirstName}";
 
         //from AD but modify from webapp
         public string Extension { get; set; }

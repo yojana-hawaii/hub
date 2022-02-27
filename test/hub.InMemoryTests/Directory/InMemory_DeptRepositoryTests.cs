@@ -22,7 +22,6 @@ namespace hub.InMemoryTests.Directory
         private int deptCount;
         private int itCount;
         private (int, string) user;
-        private string deptErrorMessage;
 
         [SetUp]
         public void Setup()
@@ -32,20 +31,20 @@ namespace hub.InMemoryTests.Directory
             acctDept = (2, "Accounting");
             billDept = (3, "Billing");
             execDept = (4, "Exec");
-            invalidDept = (99, "Marketing");
+            invalidDept = (-1, "");
             deptCount = 4;
-            deptErrorMessage = "Department not found";
             itCount = 5;
             user = (10, "amm");
         }
 
-        //Valid Tests
+
         [Test]
-        public void GetAllDept_Valid_ReturnDeptList()
+        public void GetAllDepartments_Valid_ReturnDeptList()
         {
             IEnumerable<Department> depts = _deptObj.GetAllDepartments();
 
             Assert.IsNotNull(depts);
+            Assert.That(deptCount, Is.EqualTo(depts.Count()));
             CollectionAssert.AllItemsAreUnique(depts);
             CollectionAssert.AllItemsAreNotNull(depts);
 
@@ -54,19 +53,38 @@ namespace hub.InMemoryTests.Directory
             Assert.That(depts.Count(d => d.DepartmentName == billDept.Item2), Is.EqualTo(1));
             Assert.That(depts.Count(d => d.DepartmentName == execDept.Item2), Is.EqualTo(1));
 
-            Assert.That(deptCount, Is.EqualTo(depts.Count()));
+
+            var oneDept = depts.FirstOrDefault(d => d.DepartmentId == itDept.Item1);
+            Assert.That(oneDept.DepartmentName, Is.EqualTo(itDept.Item2));
         }
+        
+        
         [Test]
-        public void GetDeptById_ValidId_ReturnDept()
+        public void GetByDepartmentId_ValidId_ReturnOneDept()
         {
             Department it = _deptObj.GetByDepartmentId(itDept.Item1);
             Department bill = _deptObj.GetByDepartmentId(billDept.Item1);
+
+            Assert.IsNotNull(it);
+            Assert.IsNotNull(bill);
 
             Assert.AreEqual(itDept.Item2, it.DepartmentName);
             Assert.AreEqual(billDept.Item2, bill.DepartmentName);
         }
         [Test]
-        public void GetEmplyeesByDeptId_ValidId_ReturnEmployees()
+        public void GetByDepartmentId_InvalidId_ReturnOneNullDepartment()
+        {
+            var dept = _deptObj.GetByDepartmentId(invalidDept.Item1);
+
+            Assert.IsNotNull(dept);
+
+            Assert.AreEqual(invalidDept.Item2, dept.DepartmentName);
+            Assert.AreEqual(invalidDept.Item1, dept.DepartmentId);
+        }
+
+
+        [Test]
+        public void GetDepartmentEmployees_ValidId_ReturnEmployeeList()
         {
             IEnumerable<Employee> emps = _deptObj.GetDepartmentEmployees(itDept.Item1);
 
@@ -76,53 +94,37 @@ namespace hub.InMemoryTests.Directory
             CollectionAssert.AllItemsAreNotNull(emps);
 
             Assert.That(emps.Count(e => e.Username == user.Item2), Is.EqualTo(1));
+
+            var oneEmp = emps.FirstOrDefault(e => e.EmployeeId == user.Item1);
+            Assert.That(oneEmp.Username, Is.EqualTo(user.Item2));
         }
         [Test]
-        public void GetDeptId_ValidName_ReturnDeptId()
+        public void GetDepartmentEmployees_InValidId_ReurnsNullEmployeeList()
+        {
+            var emps = _deptObj.GetDepartmentEmployees(invalidDept.Item1);
+
+            Assert.IsNotNull(emps);
+            Assert.That(1, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreUnique(emps);
+            CollectionAssert.AllItemsAreNotNull(emps);
+
+            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == invalidDept.Item1);
+            Assert.That(nullEmp.EmployeeId, Is.EqualTo(invalidDept.Item1));
+            Assert.That(nullEmp.Username, Is.EqualTo(invalidDept.Item2));
+        }
+
+
+        [Test]
+        public void GetDepartmentId_ValidName_ReturnOneDeptId()
         {
             int deptId = _deptObj.GetDepartmentId(execDept.Item2);
             Assert.AreEqual(execDept.Item1, deptId);
-        }
-
-        //Invalid Tests
+        }       
         [Test]
-        public void GetDeptById_InvalidId_ArgumentException()
+        public void GetDepartmentId_InvalidName_ReturnOneNullDepartmentId()
         {
-            Assert.That(
-                () => _deptObj.GetByDepartmentId(invalidDept.Item1)
-                ,
-                Throws
-                .TypeOf<ArgumentException>()
-                .With
-                .Property("Message")
-                .Matches(deptErrorMessage)
-                );
-        }
-        [Test]
-        public void GetEmployeesByDeptId_InValidId_NullReferenceException()
-        {
-            Assert.That(
-                    () => _deptObj.GetDepartmentEmployees(invalidDept.Item1)
-                    ,
-                    Throws
-                    .TypeOf<NullReferenceException>()
-                    .With
-                    .Property("Message")
-                    .Matches(deptErrorMessage)
-                );
-        }
-        [Test]
-        public void GetDeptId_InvalidName_ArgumentException()
-        {
-            Assert.That(
-                    () => _deptObj.GetDepartmentId(invalidDept.Item2)
-                    ,
-                    Throws
-                    .TypeOf<ArgumentException>()
-                    .With
-                    .Property("Message")
-                    .Matches(deptErrorMessage)
-                );
+            var deptId = _deptObj.GetDepartmentId(invalidDept.Item2);
+            Assert.AreEqual(invalidDept.Item1, deptId);
         }
     }
 }

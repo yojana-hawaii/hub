@@ -31,7 +31,7 @@ namespace hub.InMemoryTests.Seed
                         DepartmentId = 3, JobTitleId = 4,
                         PrimaryManagerId = null,
                         LocationId = 4,
-                        Keyword = "e k",
+                        Keyword = "e k, ek@email.com",
                 },
                 new Employee {
                         EmployeeId = 2, FirstName = "l", LastName = "s", Email = "ls@email.com",
@@ -39,7 +39,7 @@ namespace hub.InMemoryTests.Seed
                         DepartmentId = 4, JobTitleId = 3,
                         PrimaryManagerId = 1,
                         LocationId = 4,
-                        Keyword = "l s",
+                        Keyword = "l s, ls@email.com",
                         FullNumber = "963-8520",
                 },
                 new Employee {

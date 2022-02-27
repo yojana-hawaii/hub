@@ -11,11 +11,39 @@ namespace hub.dal.repository.directory
     public class LocationRepository : ILocation
     {
         private readonly HubDbContext _context;
-        private readonly string _locException = "Location not found";
+
+        private readonly Location _nulllLoc;
+        private readonly List<Employee> _nullDeptEmployees;
+        private readonly Employee _nullEmp;
+
         public LocationRepository(HubDbContext context)
         {
             _context = context;
+
+            //null object design pattern.
+            _nullEmp = new Employee()
+            {
+                EmployeeId = -1,
+                Username = ""
+            };
+            _nullDeptEmployees = new List<Employee>
+            {
+                _nullEmp
+            };
+            _nulllLoc = new Location()
+            {
+                LocationId = -1,
+                LocationName = "",
+                Employees = _nullDeptEmployees
+            };
         }
+
+        private Location GetNullLocation()
+        {
+            return _nulllLoc;
+        }
+
+
         public IEnumerable<Location> GetAllLocations()
         {
             return _context.Locations;
@@ -28,22 +56,14 @@ namespace hub.dal.repository.directory
                 .FirstOrDefault(l => l.LocationId == locId);
 
             if (loc is null)
-                throw new ArgumentException(_locException, locId.ToString());
+                loc = GetNullLocation();
             return loc;
         }
 
         public IEnumerable<Employee> GetEmployeesByLocation(int locId)
         {
-            try
-            {
-
-                return GetByLocationId(locId)
-                    .Employees;
-            }
-            catch
-            {
-                throw new NullReferenceException(_locException);
-            }
+            return GetByLocationId(locId)
+                .Employees;
         }
 
         public int GetLocationId(string locName)
@@ -52,7 +72,8 @@ namespace hub.dal.repository.directory
                 .FirstOrDefault(l => l.LocationName == locName);
 
             if (loc is null)
-                throw new ArgumentException(_locException, locName);
+                loc = GetNullLocation();
+
             return loc.LocationId;
         }
     }

@@ -22,7 +22,6 @@ namespace hub.InMemoryTests.Directory
         private int buildingCount;
         private int remoteCount;
         private (int, string) user;
-        private string locErrorMessage;
 
         [SetUp]
         public void Setup()
@@ -32,16 +31,15 @@ namespace hub.InMemoryTests.Directory
             acctBuilding = (2, "Accounting Building");
             remote = (3, "Remove Worker");
             execBuilding = (4, "Exec Building");
-            invalidBuilding = (99, "Marketing Building");
+            invalidBuilding = (-1, "");
             buildingCount = 4;
             remoteCount = 3;
             user = (5, "rm");
-            locErrorMessage = "Location not found";
         }
 
 
         [Test]
-        public void GetAllLocations_Valid_ReturnsListOfLocations()
+        public void GetAllLocations_Valid_ReturnsLocationList()
         {
             IEnumerable<Location> _loc = _locObj.GetAllLocations();
 
@@ -49,75 +47,80 @@ namespace hub.InMemoryTests.Directory
             Assert.That(buildingCount, Is.EqualTo(_loc.Count()));
             CollectionAssert.AllItemsAreUnique(_loc);
             CollectionAssert.AllItemsAreNotNull(_loc);
+
             Assert.That(_loc.Count(l => l.LocationName == itBuilding.Item2), Is.EqualTo(1));
+
+            var oneLoc = _loc.FirstOrDefault(l => l.LocationId == itBuilding.Item1);
+            Assert.AreEqual(oneLoc.LocationName, itBuilding.Item2);
         }
+
+
         [Test]
-        public void GetLocationById_ValidId_ReturnLocationObject()
+        public void GetByLocationId_ValidId_ReturnOneLocation()
         {
             Location loc1 = _locObj.GetByLocationId(execBuilding.Item1);
             Location loc2 = _locObj.GetByLocationId(acctBuilding.Item1);
+
+            Assert.IsNotNull(loc1);
+            Assert.IsNotNull(loc2);
+
             Assert.AreEqual(execBuilding.Item2, loc1.LocationName);
             Assert.AreEqual(acctBuilding.Item2, loc2.LocationName);
         }
         [Test]
-        public void GetLocationById_InvalidId_ReturnArgumentException()
+        public void GetByLocationId_InvalidId_ReturnOneNullLocation()
         {
-            Assert.That(
-                () => _locObj.GetByLocationId(invalidBuilding.Item1)
-                ,
-                Throws
-                .TypeOf<ArgumentException>()
-                .With.Property("Message")
-                .Matches(locErrorMessage)
-                );
-        }
-
-
-        [Test]
-        public void GetEmployeeByLocID_ValidId_ReturnEmployees()
-        {
-            IEnumerable<Employee> loc = _locObj.GetEmployeesByLocation(remote.Item1);
+            var loc = _locObj.GetByLocationId(invalidBuilding.Item1);
 
             Assert.IsNotNull(loc);
-            Assert.That(remoteCount, Is.EqualTo(loc.Count()));
-            CollectionAssert.AllItemsAreNotNull(loc);
-            CollectionAssert.AllItemsAreUnique(loc);
-            Assert.That(loc.Count(l => l.Username == user.Item2), Is.EqualTo(1));
+
+            Assert.AreEqual(invalidBuilding.Item2, loc.LocationName);
         }
+
+
         [Test]
-        public void GetEmployeeByLocId_InvalidId_NullReferenceException()
+        public void GetEmployeesByLocation_ValidId_ReturnEmployeesList()
         {
-            Assert.That(
-                    () => _locObj.GetEmployeesByLocation(invalidBuilding.Item1)
-                    ,
-                    Throws
-                    .TypeOf<NullReferenceException>()
-                    .With
-                    .Property("Message")
-                    .Matches(locErrorMessage)
-                );
+            IEnumerable<Employee> emps = _locObj.GetEmployeesByLocation(remote.Item1);
+
+            Assert.IsNotNull(emps);
+            Assert.That(remoteCount, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
+
+            Assert.That(emps.Count(l => l.Username == user.Item2), Is.EqualTo(1));
+
+            var oneEmp = emps.FirstOrDefault(e => e.EmployeeId == user.Item1);
+            Assert.That(oneEmp.Username, Is.EqualTo(user.Item2));
+        }
+        [Test]
+        public void GetEmployeesByLocation_InvalidId_ReturnNullEmployeeList()
+        {
+            var emps = _locObj.GetEmployeesByLocation(invalidBuilding.Item1);
+
+            Assert.IsNotNull(emps);
+            Assert.That(1, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreUnique(emps);
+            CollectionAssert.AllItemsAreNotNull(emps);
+
+            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == invalidBuilding.Item1);
+            Assert.That(nullEmp.EmployeeId, Is.EqualTo(invalidBuilding.Item1));
+            Assert.That(nullEmp.Username, Is.EqualTo(invalidBuilding.Item2));
         }
 
 
         [Test]
-        public void GetLocId_ValidName_ReturnLocID()
+        public void GetLocationId_ValidName_ReturnOneLocID()
         {
             int locId = _locObj.GetLocationId(execBuilding.Item2);
             Assert.AreEqual(execBuilding.Item1, locId);
         }
 
         [Test]
-        public void GetLocId_InbalidName_ArgumentException()
+        public void GetLocationId_InbalidName_ReturnOneNullJobId()
         {
-            Assert.That(
-                   () => _locObj.GetLocationId(invalidBuilding.Item2)
-                   ,
-                   Throws
-                   .TypeOf<ArgumentException>()
-                   .With
-                   .Property("Message")
-                   .Matches(locErrorMessage)
-               );
+            var locId = _locObj.GetLocationId(invalidBuilding.Item2);
+            Assert.AreEqual(invalidBuilding.Item1, locId);
         }
     }
 }

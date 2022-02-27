@@ -21,7 +21,6 @@ namespace hub.InMemoryTests.Directory
         private int jobTitleCount;
         private int sysadminCount;
         private (int, string) user;
-        private string jobErrorMessage;
 
 
         [SetUp]
@@ -32,16 +31,15 @@ namespace hub.InMemoryTests.Directory
             payroll = (2, "Payroll");
             cfo = (3, "CFO");
             ceo = (4, "CEO");
-            invalid = (99, "Marketing Director");
+            invalid = (-1, "");
             jobTitleCount = 4;
             sysadminCount = 5;
             user = (10, "amm");
-            jobErrorMessage = "Job Title not found";
         }
 
 
         [Test]
-        public void GetAllJobTitles_Valid_ReturnListOfDept()
+        public void GetAllJobTitles_Valid_ReturnJobList()
         {
             IEnumerable<JobTitle> jobs = _jobObj.GetAllJobTitles();
 
@@ -49,34 +47,37 @@ namespace hub.InMemoryTests.Directory
             Assert.That(jobTitleCount, Is.EqualTo(jobs.Count()));
             CollectionAssert.AllItemsAreUnique(jobs);
             CollectionAssert.AllItemsAreNotNull(jobs);
+
             Assert.That(jobs.Count(d => d.JobTitleName == sysAdmin.Item2), Is.EqualTo(1));
+
+            var oneJob = jobs.FirstOrDefault(j => j.JobTitleId == sysAdmin.Item1);
+            Assert.That(oneJob.JobTitleName, Is.EqualTo(sysAdmin.Item2));
         }
 
         [Test]
-        public void GetJobById_ValidId_ReturnDeptObject()
+        public void GetByJobTitleId_ValidId_ReturnOneJob()
         {
             JobTitle job1 = _jobObj.GetByJobTitleId(ceo.Item1);
             JobTitle job2 = _jobObj.GetByJobTitleId(payroll.Item1);
+
+            Assert.IsNotNull(job1);
+            Assert.IsNotNull(job2);
 
             Assert.AreEqual(ceo.Item2, job1.JobTitleName);
             Assert.AreEqual(payroll.Item2, job2.JobTitleName);
         }
         [Test]
-        public void GetJobById_InvalidId_ArgumentException()
+        public void GetByJobTitleId_InvalidId_ReturnOneNullJob()
         {
-            Assert.That(
-                    () => _jobObj.GetByJobTitleId(invalid.Item1)
-                    ,
-                    Throws
-                    .TypeOf<ArgumentException>()
-                    .With
-                    .Property("Message")
-                    .Matches(jobErrorMessage)
-                );
+            var job = _jobObj.GetByJobTitleId(invalid.Item1);
+
+            Assert.IsNotNull(job);
+
+            Assert.AreEqual(invalid.Item2, job.JobTitleName);
         }
 
         [Test]
-        public void GetEmployeeByJobId_ValidId_ReturnEmployees()
+        public void GetEmployeesByJobTitle_ValidId_ReturnEmployeesList()
         {
             IEnumerable<Employee> emps = _jobObj.GetEmployeesByJobTitle(sysAdmin.Item1);
 
@@ -84,40 +85,38 @@ namespace hub.InMemoryTests.Directory
             Assert.That(sysadminCount, Is.EqualTo(emps.Count()));
             CollectionAssert.AllItemsAreNotNull(emps);
             CollectionAssert.AllItemsAreUnique(emps);
+
             Assert.That(emps.Count(e => e.Username == user.Item2), Is.EqualTo(1));
+
+            var oneEmp = emps.FirstOrDefault(e => e.EmployeeId == user.Item1);
+            Assert.That(oneEmp.Username, Is.EqualTo(user.Item2));
         }
         [Test]
-        public void GetEmployeeById_InvalidId_NullReferenceException()
+        public void GetEmployeesByJobTitle_InvalidId_ReturnNullEmployeeList()
         {
-            Assert.That(
-                    () => _jobObj.GetEmployeesByJobTitle(invalid.Item1)
-                    ,
-                    Throws
-                    .TypeOf<NullReferenceException>()
-                    .With
-                    .Property("Message")
-                    .Matches(jobErrorMessage)
-                );
+            var emps = _jobObj.GetEmployeesByJobTitle(invalid.Item1);
+
+            Assert.IsNotNull(emps);
+            Assert.That(1, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreUnique(emps);
+            CollectionAssert.AllItemsAreNotNull(emps);
+
+            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == invalid.Item1);
+            Assert.That(nullEmp.EmployeeId, Is.EqualTo(invalid.Item1));
+            Assert.That(nullEmp.Username, Is.EqualTo(invalid.Item2));
         }
 
         [Test]
-        public void GetJobId_ValidName_ReturnJobName()
+        public void GetJobTitleId_ValidName_ReturnOneJobId()
         {
             int jobid = _jobObj.GetJobTitleId(cfo.Item2);
             Assert.AreEqual(cfo.Item1, jobid);
         }
         [Test]
-        public void GetJobId_InvalidName_ArgumentException()
+        public void GetJobTitleId_InvalidName_ReturnsOneNullJobId()
         {
-            Assert.That(
-                    () => _jobObj.GetJobTitleId(invalid.Item2)
-                    ,
-                    Throws
-                    .TypeOf<ArgumentException>()
-                    .With
-                    .Property("Message")
-                    .Matches(jobErrorMessage)
-                );
+            var jobid = _jobObj.GetJobTitleId(invalid.Item2);
+            Assert.AreEqual(invalid.Item1, jobid);
         }
     }
 }

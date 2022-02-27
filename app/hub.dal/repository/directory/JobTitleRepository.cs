@@ -62,8 +62,13 @@ namespace hub.dal.repository.directory
 
         public IEnumerable<Employee> GetEmployeesByJobTitle(int jobId)
         {
-            return GetByJobTitleId(jobId)
-                .Employees;
+            var emp = GetByJobTitleId(jobId).Employees;
+
+            //emp is instanstiated in model class so it will never be null but it can be 0 employee
+            //if (emp is null) emp = GetNullJobTitle().Employees;
+            if (emp.Count() == 0) emp = GetNullJobTitle().Employees;
+
+            return emp;
         }
 
         public int GetJobTitleId(string titleName)

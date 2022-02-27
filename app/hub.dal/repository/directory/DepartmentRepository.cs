@@ -59,10 +59,15 @@ namespace hub.dal.repository.directory
             return dept;
         }
 
-        public IEnumerable<Employee> GetDepartmentEmployees(int deptId)
+        public IEnumerable<Employee> GetEmployeesByDepartment(int deptId)
         {
-            return GetByDepartmentId(deptId)
-                .Employees;
+            var emp = GetByDepartmentId(deptId).Employees;
+
+            //emp is instanstiated in model class so it will never be null but it can be 0 employee
+            //if (emp is null) emp = GetNullDepartment().Employees;
+            if (emp.Count() == 0) emp = GetNullDepartment().Employees;
+
+            return emp;
         }
 
         public int GetDepartmentId(string deptName)

@@ -7,7 +7,7 @@ namespace hub.dal.interfaces.directory
     {
         IEnumerable<Department> GetAllDepartments();
         Department GetByDepartmentId(int deptId);
-        IEnumerable<Employee> GetDepartmentEmployees(int deptId);
+        IEnumerable<Employee> GetEmployeesByDepartment(int deptId);
         int GetDepartmentId(string deptName);
     }
 }

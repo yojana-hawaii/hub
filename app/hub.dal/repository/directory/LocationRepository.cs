@@ -62,8 +62,13 @@ namespace hub.dal.repository.directory
 
         public IEnumerable<Employee> GetEmployeesByLocation(int locId)
         {
-            return GetByLocationId(locId)
-                .Employees;
+            var emp = GetByLocationId(locId).Employees;
+
+            //emp is instanstiated in model class so it will never be null but it can be 0 employee
+            //if (emp is null) emp = GetNullLocation().Employees;
+            if (emp.Count() == 0) emp = GetNullLocation().Employees;
+
+            return emp;
         }
 
         public int GetLocationId(string locName)

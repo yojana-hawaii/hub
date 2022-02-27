@@ -77,7 +77,7 @@ namespace hub.InMemoryTests.Seed
                         Keyword = "d a",
                 },
                 new Employee {
-                        EmployeeId = 7, FirstName = "e", LastName = "z", Email = "ezemail.com",
+                        EmployeeId = 7, FirstName = "", LastName = "", Email = "ez@email.com",
                         Username = "ez",
                         DepartmentId = 2, JobTitleId = 2,
                         PrimaryManagerId = 4,
@@ -111,8 +111,8 @@ namespace hub.InMemoryTests.Seed
                         Keyword = "a mm",
                 },
                 new Employee {
-                        EmployeeId = 11, FirstName = "a", LastName = "l", Email = "al@email.com",
-                        Username = "al",
+                        EmployeeId = 11, LastName = "l", Email = "l@email.com",
+                        Username = "l",
                         DepartmentId = 1, JobTitleId = 1,
                         PrimaryManagerId = 3,
                         LocationId = 2,
@@ -122,10 +122,18 @@ namespace hub.InMemoryTests.Seed
                 {
                     EmployeeId = 12, FirstName = "x", Email = "x@email.com",
                         Username = "x",
+                        DepartmentId = null, JobTitleId = null,
+                        PrimaryManagerId = 3,
+                        LocationId = null,
+                        Keyword = "x",
+                },
+                new Employee {
+                        EmployeeId = 13, LastName = "m", FirstName = "p", Email = "pm@email.com",
+                        Username = "pm",
                         DepartmentId = 1, JobTitleId = 1,
                         PrimaryManagerId = 3,
                         LocationId = 2,
-                        Keyword = "x",
+                        Keyword = "a l",
                 }
             };
 
@@ -141,6 +149,7 @@ namespace hub.InMemoryTests.Seed
                 new Location {LocationId=2, LocationName="Accounting Building"},
                 new Location {LocationId=3, LocationName="Remote Worker"},
                 new Location {LocationId=4, LocationName="Exec Building"},
+                new Location {LocationId=5, LocationName="New Building"},
             };
             context.Locations.AddRange(locations);
             context.SaveChanges();
@@ -154,6 +163,7 @@ namespace hub.InMemoryTests.Seed
                 new JobTitle { JobTitleId = 2, JobTitleName = "Payroll"},
                 new JobTitle { JobTitleId = 3, JobTitleName = "CFO"},
                 new JobTitle { JobTitleId = 4, JobTitleName = "CEO"},
+                new JobTitle { JobTitleId = 5, JobTitleName = "New Job Title"},
             };
 
             context.JobTitles.AddRange(jobTitles);
@@ -168,6 +178,7 @@ namespace hub.InMemoryTests.Seed
                 new Department { DepartmentId = 2, DepartmentName = "Accounting"},
                 new Department { DepartmentId = 3, DepartmentName = "Billing"},
                 new Department { DepartmentId = 4, DepartmentName = "Exec"},
+                new Department { DepartmentId = 5, DepartmentName = "New Department"},
             };
 
             context.Departments.AddRange(departments);

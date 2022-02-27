@@ -18,7 +18,8 @@ namespace hub.InMemoryTests.Directory
         private (int, string) acctDept;
         private (int, string) billDept;
         private (int, string) execDept;
-        private (int, string) invalidDept;
+        private (int, string) _invalid;
+        private (int, string) newDepartment;
         private int deptCount;
         private int itCount;
         private (int, string) user;
@@ -31,8 +32,9 @@ namespace hub.InMemoryTests.Directory
             acctDept = (2, "Accounting");
             billDept = (3, "Billing");
             execDept = (4, "Exec");
-            invalidDept = (-1, "");
-            deptCount = 4;
+            _invalid = (-1, "");
+            newDepartment = (5, "");
+            deptCount = 5;
             itCount = 5;
             user = (10, "amm");
         }
@@ -74,19 +76,19 @@ namespace hub.InMemoryTests.Directory
         [Test]
         public void GetByDepartmentId_InvalidId_ReturnOneNullDepartment()
         {
-            var dept = _deptObj.GetByDepartmentId(invalidDept.Item1);
+            var dept = _deptObj.GetByDepartmentId(_invalid.Item1);
 
             Assert.IsNotNull(dept);
 
-            Assert.AreEqual(invalidDept.Item2, dept.DepartmentName);
-            Assert.AreEqual(invalidDept.Item1, dept.DepartmentId);
+            Assert.AreEqual(_invalid.Item2, dept.DepartmentName);
+            Assert.AreEqual(_invalid.Item1, dept.DepartmentId);
         }
 
 
         [Test]
-        public void GetDepartmentEmployees_ValidId_ReturnEmployeeList()
+        public void GetEmployeesByDepartment_ValidId_ReturnEmployeeList()
         {
-            IEnumerable<Employee> emps = _deptObj.GetDepartmentEmployees(itDept.Item1);
+            IEnumerable<Employee> emps = _deptObj.GetEmployeesByDepartment(itDept.Item1);
 
             Assert.IsNotNull(emps);
             Assert.That(itCount, Is.EqualTo(emps.Count()));
@@ -99,20 +101,32 @@ namespace hub.InMemoryTests.Directory
             Assert.That(oneEmp.Username, Is.EqualTo(user.Item2));
         }
         [Test]
-        public void GetDepartmentEmployees_InValidId_ReurnsNullEmployeeList()
+        public void GetEmployeesByDepartment_InValidId_ReurnsNullEmployeeList()
         {
-            var emps = _deptObj.GetDepartmentEmployees(invalidDept.Item1);
+            var emps = _deptObj.GetEmployeesByDepartment(_invalid.Item1);
 
             Assert.IsNotNull(emps);
             Assert.That(1, Is.EqualTo(emps.Count()));
             CollectionAssert.AllItemsAreUnique(emps);
             CollectionAssert.AllItemsAreNotNull(emps);
 
-            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == invalidDept.Item1);
-            Assert.That(nullEmp.EmployeeId, Is.EqualTo(invalidDept.Item1));
-            Assert.That(nullEmp.Username, Is.EqualTo(invalidDept.Item2));
+            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == _invalid.Item1);
+            Assert.That(nullEmp.EmployeeId, Is.EqualTo(_invalid.Item1));
+            Assert.That(nullEmp.Username, Is.EqualTo(_invalid.Item2));
         }
+        [Test]
+        public void GetEmployeesByDepartment_MisingEmployee_ReturnNullEmployeeList()
+        {
+            var emps = _deptObj.GetEmployeesByDepartment(newDepartment.Item1);
 
+            Assert.IsNotNull(emps);
+            Assert.That(1, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreUnique(emps);
+            CollectionAssert.AllItemsAreNotNull(emps);
+
+            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == _invalid.Item1);
+            Assert.That(nullEmp.Username, Is.EqualTo(_invalid.Item2));
+        }
 
         [Test]
         public void GetDepartmentId_ValidName_ReturnOneDeptId()
@@ -123,8 +137,8 @@ namespace hub.InMemoryTests.Directory
         [Test]
         public void GetDepartmentId_InvalidName_ReturnOneNullDepartmentId()
         {
-            var deptId = _deptObj.GetDepartmentId(invalidDept.Item2);
-            Assert.AreEqual(invalidDept.Item1, deptId);
+            var deptId = _deptObj.GetDepartmentId(_invalid.Item2);
+            Assert.AreEqual(_invalid.Item1, deptId);
         }
     }
 }

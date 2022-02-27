@@ -85,7 +85,7 @@ namespace hub.dal.repository.directory
                 .FirstOrDefault(e => e.EmployeeId == empId);
 
             if (emp is null)
-                return GetNullEmployee();
+                emp = GetNullEmployee();
 
             return emp;
         }
@@ -107,6 +107,8 @@ namespace hub.dal.repository.directory
             {
                 _fullName = emp.FirstName;
             }
+
+            if (_fullName is null) _fullName = "";
             return _fullName;
         }
 
@@ -136,15 +138,21 @@ namespace hub.dal.repository.directory
 
         public string GetEmployeeDepartment(int empId)
         {
-            return GetEmployeeById(empId).Department.DepartmentName;
+            var dept = GetEmployeeById(empId).Department;
+            if (dept is null) dept = GetNullEmployee().Department;
+            return dept.DepartmentName;
         }
         public string GetEmployeeJobTitle(int empId)
         {
-            return GetEmployeeById(empId).JobTitle.JobTitleName;
+            var job = GetEmployeeById(empId).JobTitle;
+            if (job is null) job = GetNullEmployee().JobTitle;
+            return job.JobTitleName;
         }
         public string GetEmployeeLocation(int empId)
         {
-            return GetEmployeeById(empId).Location.LocationName;
+            var loc = GetEmployeeById(empId).Location;
+            if (loc is null) loc = GetNullEmployee().Location;
+            return loc.LocationName;
         }
 
         public Employee GetManager(int empId)

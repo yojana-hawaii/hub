@@ -17,7 +17,8 @@ namespace hub.InMemoryTests.Directory
         private (int, string) payroll;
         private (int, string) cfo;
         private (int, string) ceo;
-        private (int, string) invalid;
+        private (int, string) _invalid;
+        private (int, string) newJob;
         private int jobTitleCount;
         private int sysadminCount;
         private (int, string) user;
@@ -31,8 +32,9 @@ namespace hub.InMemoryTests.Directory
             payroll = (2, "Payroll");
             cfo = (3, "CFO");
             ceo = (4, "CEO");
-            invalid = (-1, "");
-            jobTitleCount = 4;
+            _invalid = (-1, "");
+            newJob = (-1, "");
+            jobTitleCount = 5;
             sysadminCount = 5;
             user = (10, "amm");
         }
@@ -69,12 +71,13 @@ namespace hub.InMemoryTests.Directory
         [Test]
         public void GetByJobTitleId_InvalidId_ReturnOneNullJob()
         {
-            var job = _jobObj.GetByJobTitleId(invalid.Item1);
+            var job = _jobObj.GetByJobTitleId(_invalid.Item1);
 
             Assert.IsNotNull(job);
 
-            Assert.AreEqual(invalid.Item2, job.JobTitleName);
+            Assert.AreEqual(_invalid.Item2, job.JobTitleName);
         }
+
 
         [Test]
         public void GetEmployeesByJobTitle_ValidId_ReturnEmployeesList()
@@ -94,16 +97,29 @@ namespace hub.InMemoryTests.Directory
         [Test]
         public void GetEmployeesByJobTitle_InvalidId_ReturnNullEmployeeList()
         {
-            var emps = _jobObj.GetEmployeesByJobTitle(invalid.Item1);
+            var emps = _jobObj.GetEmployeesByJobTitle(_invalid.Item1);
 
             Assert.IsNotNull(emps);
             Assert.That(1, Is.EqualTo(emps.Count()));
             CollectionAssert.AllItemsAreUnique(emps);
             CollectionAssert.AllItemsAreNotNull(emps);
 
-            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == invalid.Item1);
-            Assert.That(nullEmp.EmployeeId, Is.EqualTo(invalid.Item1));
-            Assert.That(nullEmp.Username, Is.EqualTo(invalid.Item2));
+            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == _invalid.Item1);
+            Assert.That(nullEmp.EmployeeId, Is.EqualTo(_invalid.Item1));
+            Assert.That(nullEmp.Username, Is.EqualTo(_invalid.Item2));
+        }
+        [Test]
+        public void GetEmployeeByJobJobTitle_MisingEmployee_ReturnNullEmployeeList()
+        {
+            var emps = _jobObj.GetEmployeesByJobTitle(newJob.Item1);
+
+            Assert.IsNotNull(emps);
+            Assert.That(1, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreUnique(emps);
+            CollectionAssert.AllItemsAreNotNull(emps);
+
+            var nullEmp = emps.FirstOrDefault(e => e.EmployeeId == _invalid.Item1);
+            Assert.That(nullEmp.Username, Is.EqualTo(_invalid.Item2));
         }
 
         [Test]
@@ -115,8 +131,8 @@ namespace hub.InMemoryTests.Directory
         [Test]
         public void GetJobTitleId_InvalidName_ReturnsOneNullJobId()
         {
-            var jobid = _jobObj.GetJobTitleId(invalid.Item2);
-            Assert.AreEqual(invalid.Item1, jobid);
+            var jobid = _jobObj.GetJobTitleId(_invalid.Item2);
+            Assert.AreEqual(_invalid.Item1, jobid);
         }
     }
 }

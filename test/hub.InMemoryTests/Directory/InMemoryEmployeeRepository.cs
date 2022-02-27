@@ -19,8 +19,10 @@ namespace hub.InMemoryTests.Directory
         private (int, string, string, string) dc;
         private (int, string, string, string, int, string) ls;
         private (int, string, string, string, string, string, int, string, string) empX;
-        private (int, string) missingLastName;
+        private (int, string) missingFirstName;
+        private (int, string) missingFirstAndLastName;
         private (int, string, string) _invalid;
+        private (int, string, string) emptyDeptLocJob;
 
 
 
@@ -28,14 +30,16 @@ namespace hub.InMemoryTests.Directory
         public void Setup()
         {
             _empObj = new EmployeeRepository(_context);
-            empCount = 12;
+            empCount = 13;
             ceo = (1, "ek", "ek@email.com");
             jc = (9, "jc", "l", "c, j", "123-9876", "123");
             dc = (5, "dc", "dc@email.com", "Accounting");
             ls = (2, "ls", "Exec Building", "CFO", 4, "963-8520");
             _invalid = (-1, "", "xx");
-            missingLastName = (12, "x");
-            empX = (3, "am", "ls", "Systems Administrator", "IT Building", "IT", 2, "a", "987");
+            emptyDeptLocJob = (12, "x", "");
+            missingFirstName = (11, "l");
+            missingFirstAndLastName = (7, "");
+            empX = (3, "am", "ls", "Systems Administrator", "IT Building", "IT", 3, "p", "987");
         }
 
       
@@ -82,8 +86,20 @@ namespace hub.InMemoryTests.Directory
         [Test]
         public void GetFullname_NoLastname_ReturnFirstName()
         {
-            var fullname = _empObj.GetFullName(missingLastName.Item1);
-            Assert.That(missingLastName.Item2, Is.EqualTo(fullname));
+            var fullname = _empObj.GetFullName(emptyDeptLocJob.Item1);
+            Assert.That(emptyDeptLocJob.Item2, Is.EqualTo(fullname));
+        }
+        [Test]
+        public void GetFullname_NoFirstname_ReturnLastName()
+        {
+            var fullname = _empObj.GetFullName(missingFirstName.Item1);
+            Assert.That(missingFirstName.Item2, Is.EqualTo(fullname));
+        }
+        [Test]
+        public void GetFullname_NoFirstOrLastName_ReturnBlank()
+        {
+            var fullname = _empObj.GetFullName(missingFirstAndLastName.Item1);
+            Assert.AreEqual(missingFirstAndLastName.Item2, fullname);
         }
         [Test]
         public void GetFullname_InvalidId_ReturnOneNullEmployee()
@@ -110,6 +126,12 @@ namespace hub.InMemoryTests.Directory
             Assert.IsNotNull(dept);
             Assert.That(dept, Is.EqualTo(_invalid.Item2));
         }
+        [Test]
+        public void GetEmployeeDepartment_MissingDept_ReturnOneNullDepartment()
+        {
+            string dept = _empObj.GetEmployeeDepartment(emptyDeptLocJob.Item1);
+            Assert.AreEqual(dept, emptyDeptLocJob.Item3);
+        }
 
 
         [Test]
@@ -126,6 +148,12 @@ namespace hub.InMemoryTests.Directory
             string job = _empObj.GetEmployeeJobTitle(_invalid.Item1);
             Assert.IsNotNull(job);
             Assert.That(job, Is.EqualTo(_invalid.Item2));
+        }
+        [Test]
+        public void GetEmployeeJobTitle_MissingJob_ReturnOneNullJobTitiel()
+        {
+            string job = _empObj.GetEmployeeJobTitle(emptyDeptLocJob.Item1);
+            Assert.AreEqual(job, emptyDeptLocJob.Item3);
         }
 
 
@@ -144,7 +172,12 @@ namespace hub.InMemoryTests.Directory
             Assert.IsNotNull(loc);
             Assert.That(loc, Is.EqualTo(_invalid.Item2));
         }
-
+        [Test]
+        public void GetEmployeeLocation_MissingLoc_ReturnOneNullLocation()
+        {
+            string loc = _empObj.GetEmployeeLocation(emptyDeptLocJob.Item1);
+            Assert.AreEqual(loc, emptyDeptLocJob.Item3);
+        }
 
 
         [Test]
@@ -152,7 +185,7 @@ namespace hub.InMemoryTests.Directory
         {
             //empX = (3, "am", "ls", "Systems Administrator", "IT Building", "IT", 2, "a");
             var emp = _empObj.GetEmployeeByADUserName(empX.Item2);
-            var staff = emp.PrimaryStaff.FirstOrDefault(s => s.Username == "al");
+            var staff = emp.PrimaryStaff.FirstOrDefault(s => s.Username == "pm");
 
             Assert.IsNotNull(emp);
             CollectionAssert.AllItemsAreNotNull(emp.PrimaryStaff);
@@ -166,7 +199,6 @@ namespace hub.InMemoryTests.Directory
             Assert.That(empX.Item7, Is.EqualTo(emp.PrimaryStaff.Count()));
             Assert.That(empX.Item8, Is.EqualTo(staff.FirstName));
         }
-
         [Test]
         public void GetEmployeeByADUserName_InvalidUsername_ReturnOneNullEmployee()
         {
@@ -223,7 +255,7 @@ namespace hub.InMemoryTests.Directory
             Assert.AreEqual(manager.Username, _invalid.Item2);
         }
         [Test]
-        public void GetManager_ValidIdNoManager_ReturnNullManager()
+        public void GetManager_MissingManager_ReturnNullManager()
         {
             var manager = _empObj.GetManager(ceo.Item1);
             Assert.IsNotNull(manager);
@@ -254,7 +286,7 @@ namespace hub.InMemoryTests.Directory
 
         }
         [Test]
-        public void GetStaffs_ValidIdNoStaff_ReturnNullStaffList()
+        public void GetStaffs_MissingStaff_ReturnNullStaffList()
         {
             var staff = _empObj.GetStaffs(jc.Item1);
             Assert.IsEmpty(staff);

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace hub.dal.repository.directory
 {
@@ -189,32 +190,31 @@ namespace hub.dal.repository.directory
 
         public IEnumerable<Employee> GetEmployeeByKeywordSearch(string searchKeyword)
         {
+            IEnumerable<Employee> employees = GetAllEmployees();
 
-            IEnumerable<Employee> matchingEmployees = new List<Employee>();
+
             if (!string.IsNullOrEmpty(searchKeyword))
             {
-                string[] newSearch = searchKeyword.Split(' ');
-                IEnumerable<Employee> employees = GetAllEmployees(); ;
+                var alphaNumeric = "[^a-zA-Z0-9 ]";
+                searchKeyword = Regex.Replace(searchKeyword, alphaNumeric, String.Empty);
 
-                foreach (var str in newSearch)
-                {
-                    //matchingEmployees = employees.Where(emp => emp.Keyword.ToLower().Contains(str.ToLower()));
-                    matchingEmployees = employees
-                        .Where(
-                        e => (e.LastName != null && e.LastName.Contains(str))
-                            || (e.FirstName != null && e.FirstName.Contains(str))
-                            || (e.Extension != null && e.Extension.Contains(str))
-                            || (e.FullNumber != null && e.FullNumber.Contains(str))
-                            || (e.Email != null && e.Email.Contains(str))
-                            || (e.JobTitle != null && e.JobTitle.JobTitleName.Contains(str))
-                            || (e.Department != null && e.Department.DepartmentName.Contains(str))
-                            || (e.Location != null && e.Location.LocationName.Contains(str))
-                        );
-                }
+                string[] searchList = searchKeyword.Split(' ');
+
+                employees = employees
+                                .Where(
+                                e => (e.LastName != null && searchList.Any(term => e.LastName.ToLower().Contains(term)))
+                                    || (e.FirstName != null && searchList.Any(term => e.FirstName.ToLower().Contains(term)))
+                                    || (e.Extension != null && searchList.Any(term => e.Extension.ToLower().Contains(term)))
+                                    || (e.FullNumber != null && searchList.Any(term => e.FullNumber.ToLower().Contains(term)))
+                                    || (e.Email != null && searchList.Any(term => e.Email.ToLower().Contains(term)))
+                                    || (e.JobTitle != null && searchList.Any(term => e.JobTitle.JobTitleName.ToLower().Contains(term)))
+                                    || (e.Department != null && searchList.Any(term => e.Department.DepartmentName.ToLower().Contains(term)))
+                                    || (e.Location != null && searchList.Any(term => e.Location.LocationName.ToLower().Contains(term)))
+                                );
             }
 
 
-            return matchingEmployees;
+            return employees;
 
         }
 

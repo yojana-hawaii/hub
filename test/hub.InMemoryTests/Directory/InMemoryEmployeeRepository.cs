@@ -295,25 +295,77 @@ namespace hub.InMemoryTests.Directory
 
       
         [Test]
-        public void GetEmployeeByKeyword_ValidString_ReturnEmployees()
+        public void GetEmployeeByKeyword_ValidOneWord_ReturnEmployees()
         {
-            var emps = _empObj.GetEmployeeByKeywordSearch(ls.Item2);
+            var emps = _empObj.GetEmployeeByKeywordSearch("ls");
             Assert.IsNotNull(emps);
             Assert.That(1, Is.EqualTo(emps.Count()));
             CollectionAssert.AllItemsAreNotNull(emps);
             CollectionAssert.AllItemsAreUnique(emps);
+        }
+        [Test]
+        public void GetEmployeeByKeyword_ValidTwoWord_ReturnEmployees()
+        {
+            var emps = _empObj.GetEmployeeByKeywordSearch("ls am");
+            Assert.IsNotNull(emps);
+            Assert.That(3, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
+        }
+        [Test]
+        public void GetEmployeeByKeyword_ValidThreeWord_ReturnEmployees()
+        {
+            var emps = _empObj.GetEmployeeByKeywordSearch("ls am jc");
+            Assert.IsNotNull(emps);
+            Assert.That(4, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
+        }
+        [Test]
+        public void GetEmployeeByKeyword_ValidOneWord_ReturnMultipleEmployees()
+        {
 
-            var emps2 = _empObj.GetEmployeeByKeywordSearch("am");
-            Assert.IsNotNull(emps2);
-            Assert.That(2, Is.EqualTo(emps2.Count()));
-            CollectionAssert.AllItemsAreNotNull(emps2);
-            CollectionAssert.AllItemsAreUnique(emps2);
-
-            var emps3 = _empObj.GetEmployeeByKeywordSearch("520");
-            Assert.IsNotNull(emps3);
-            Assert.That(1, Is.EqualTo(emps3.Count()));
-            CollectionAssert.AllItemsAreNotNull(emps3);
-            CollectionAssert.AllItemsAreUnique(emps3);
+            var emps = _empObj.GetEmployeeByKeywordSearch("am");
+            Assert.IsNotNull(emps);
+            Assert.That(2, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
+        }
+        [Test]
+        public void GetEmployeeByKeywork_ValidDigits_ReturnEmployees()
+        {
+            var emps = _empObj.GetEmployeeByKeywordSearch("520");
+            Assert.IsNotNull(emps);
+            Assert.That(1, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
+        }
+        [Test]
+        public void GetEmployeeByKeyword_EmptyString_ReturnAllEmployees()
+        {
+            var emps = _empObj.GetEmployeeByKeywordSearch(" ");
+            Assert.IsNotNull(emps);
+            Assert.That(empCount, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
+        }
+        [Test]
+        public void GetEmployeeByKeyword_OnlySpecialCharacters_ReturnAllEmployees()
+        {
+            var emps = _empObj.GetEmployeeByKeywordSearch("%.");
+            Assert.IsNotNull(emps);
+            Assert.That(empCount, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
+        }
+        [Test]
+        public void GetEmployeeByKeyword_SpecialCharactersMixedWithLetter_ReturnEmployees()
+        {
+            var emps = _empObj.GetEmployeeByKeywordSearch("%am*^");
+            Assert.IsNotNull(emps);
+            Assert.That(2, Is.EqualTo(emps.Count()));
+            CollectionAssert.AllItemsAreNotNull(emps);
+            CollectionAssert.AllItemsAreUnique(emps);
         }
     }
 }

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -28,14 +27,14 @@ namespace hub.mvc.Controllers
         }
 
         //Display all employee as default
-        [HttpGet]
-        public IActionResult Index()
+        //Search could be firstname lastname, dept, job, phone etc. so combine all into a sql field keyword
+        public IActionResult Index(string searchEmployee = null)
         {
-            var employees = _employee.GetAllEmployees();
+            IEnumerable<Employee> employees = _employee.GetEmployeeByKeywordSearch(searchEmployee);
             var employeeViewModel = ConvertToEmployeeViewModel(employees);
             return View(employeeViewModel);
         }
-        
+
         //Helper function to create view model
         private object ConvertToEmployeeViewModel(IEnumerable<Employee> employees)
         {
@@ -57,6 +56,7 @@ namespace hub.mvc.Controllers
         }
 
 
+
         //display user profile of logged in user
         public IActionResult UserProfile()
         {
@@ -65,7 +65,7 @@ namespace hub.mvc.Controllers
             UserProfileViewModel userProfileViewModel = ConvertToUserProfileViewModel(loggedInUser);
             return View(userProfileViewModel);
         }
-
+        // helper function to create user profile view model
         private UserProfileViewModel ConvertToUserProfileViewModel(Employee loggedInUser)
         {
             var _message = "Good";
@@ -83,6 +83,8 @@ namespace hub.mvc.Controllers
             return userProfileVM;
         }
 
+
+
         //Logout of ADFS and redirect to homepage. Call private method coz it did not logout properly. Stackoverflow
         public async Task Logout()
         {
@@ -98,6 +100,8 @@ namespace hub.mvc.Controllers
 
             await HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme, prop);
         }
+
+
 
         //Testing user AD group access to apge
         [Authorize(Policy = "TestUser")]

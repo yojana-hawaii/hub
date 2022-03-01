@@ -1,12 +1,12 @@
 ﻿
-@model IEnumerable<hub.mvc.ViewModel.EmployeeViewModel>
+@model IndexViewModel
 
 <h2 class="container-fluid mb-lg-5 text-center text-secondary">Employee Directory</h2>
 
 <div class="container mb-lg-5">
     <form asp-controller="Home" asp-action="Index" method="post">
         <div class="input-group mb-3">
-            <input type="text" class="form-control" name="searchEmployee" placeholder="Search phone numbers." />
+            <input type="text" class="form-control" name="searchEmployee"  placeholder="Search phone, fax or vendor numbers" value="@Model.SearchKeyword" >
             <div class="input-group-append">
                 <button class="btn btn-secondary" type="button">
                     <i class="fa fa-search"></i>
@@ -28,12 +28,12 @@
 
 
 <h5 class="container-fluid text-sm-left text-success">
-    @Model.Count() employee(s).
+    @Model.EmployeeViewModels.Count() employee(s).
 </h5>
 
 <div class="table-responsive">
     <table class="table table-borderless table-striped table-hover">
-        @if (Model.Count() == 0)
+        @if (Model.EmployeeViewModels.Count() == 0)
         {
             <tr>
                 <td colspan="10">No Record Found.</td>
@@ -51,7 +51,7 @@
                     <th scope="col">Phone</th>
                 </tr>
             </thead>
-            @foreach (var employee in Model)
+            @foreach (var employee in Model.EmployeeViewModels)
             {
                 <tr>
                     <td>@employee.Name</td>

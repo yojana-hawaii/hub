@@ -31,12 +31,26 @@ namespace hub.mvc.Controllers
         public IActionResult Index(string searchEmployee = null)
         {
             IEnumerable<Employee> employees = _employee.GetEmployeeByKeywordSearch(searchEmployee);
-            var employeeViewModel = ConvertToEmployeeViewModel(employees);
-            return View(employeeViewModel);
+            var indexViewModel = ConvertToIndexViewModel(employees);
+            indexViewModel.SearchKeyword = searchEmployee is null ? "" : searchEmployee;
+            return View(indexViewModel);
+        }
+
+        private IndexViewModel ConvertToIndexViewModel(IEnumerable<Employee> employees)
+        {
+            var empViewModel = ConvertToEmployeeViewModel(employees);
+
+            var indexViewModel = new IndexViewModel
+            {
+                EmployeeViewModels = empViewModel,
+                 
+            };
+
+            return indexViewModel;
         }
 
         //Helper function to create view model
-        private object ConvertToEmployeeViewModel(IEnumerable<Employee> employees)
+        private IEnumerable<EmployeeViewModel> ConvertToEmployeeViewModel(IEnumerable<Employee> employees)
         {
             var empViewModel = employees
                 .Select(emp => new EmployeeViewModel

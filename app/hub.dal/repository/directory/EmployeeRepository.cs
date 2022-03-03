@@ -1,11 +1,10 @@
 ﻿using hub.dal.interfaces.directory;
+using hub.dal.shared;
 using hub.dbMigration.dbContext;
 using hub.domain.model.directory;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace hub.dal.repository.directory
 {
@@ -190,17 +189,16 @@ namespace hub.dal.repository.directory
 
         public IEnumerable<Employee> GetEmployeeByKeywordSearch(string searchKeyword)
         {
-            IEnumerable<Employee> employees = GetAllEmployees();
-
+            IEnumerable<Employee> allEmployees = GetAllEmployees();
+            IEnumerable<Employee> selectEmployees = allEmployees;
 
             if (!string.IsNullOrEmpty(searchKeyword))
             {
-                var alphaNumeric = "[^a-zA-Z0-9 ]";
-                searchKeyword = Regex.Replace(searchKeyword, alphaNumeric, String.Empty);
+                searchKeyword = UserInputValidation.GetUserInputWithoutSpecialCharacterAndWhitespaces(searchKeyword);
 
-                string[] searchList = searchKeyword.Split(' ');
+                List<string> searchList = searchKeyword.Split(' ').Where(str => !string.IsNullOrWhiteSpace(str)).ToList();
 
-                employees = employees
+                selectEmployees = allEmployees
                                 .Where(
                                 e => (e.LastName != null && searchList.Any(term => e.LastName.ToLower().Contains(term)))
                                     || (e.FirstName != null && searchList.Any(term => e.FirstName.ToLower().Contains(term)))
@@ -211,10 +209,12 @@ namespace hub.dal.repository.directory
                                     || (e.Department != null && searchList.Any(term => e.Department.DepartmentName.ToLower().Contains(term)))
                                     || (e.Location != null && searchList.Any(term => e.Location.LocationName.ToLower().Contains(term)))
                                 );
+
             }
+            if (selectEmployees.Count() == 0) selectEmployees = allEmployees;
 
 
-            return employees;
+            return selectEmployees;
 
         }
 

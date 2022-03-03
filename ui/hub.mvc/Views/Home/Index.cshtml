@@ -5,22 +5,27 @@
 
 <div class="container mb-lg-5">
     <form asp-controller="Home" asp-action="Index" method="post">
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" name="searchEmployee"  placeholder="Search phone, fax or vendor numbers" value="@Model.SearchKeyword" >
-            <div class="input-group-append">
-                <button class="btn btn-secondary" type="button">
-                    <i class="fa fa-search"></i>
-                </button>
-            </div>
-        </div>
         <div class="input-group">
             <div class="custom-control custom-switch ml-5">
-                <input type="checkbox" class="custom-control-input" id="faxSwitch" />
-                <label class="custom-control-label" for="faxSwitch">Include Fax</label>
+                <input class="custom-control-input" asp-for="@Model.EmployeeSwitch" />
+                <label class="custom-control-label" asp-for="@Model.EmployeeSwitch">Include Emplooyee</label>
             </div>
             <div class="custom-control custom-switch ml-5">
-                <input type="checkbox" class="custom-control-input" id="specialistSwitch" />
-                <label class="custom-control-label" for="specialistSwitch">Include Vendor</label>
+                <input class="custom-control-input" asp-for="@Model.FaxSwitch" />
+                <label class="custom-control-label" asp-for="@Model.FaxSwitch">Include Fax</label>
+            </div>
+            <div class="custom-control custom-switch ml-5">
+                <input class="custom-control-input" asp-for="@Model.VendorSwitch" />
+                <label class="custom-control-label" asp-for="@Model.VendorSwitch">Include Vendor</label>
+            </div>
+        </div>
+
+        <div class="input-group mb-3 mt-3">
+            <input class="form-control" asp-for="@Model.SearchKeyword" placeholder="Search phone number, fax or vendor ... " />
+            <div class="input-group-append">
+                <button class="btn btn-success" type="submit">
+                    <i class="fa fa-search"></i>
+                </button>
             </div>
         </div>
     </form>

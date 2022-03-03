@@ -13,7 +13,7 @@ namespace hub.dal.repository.directory
         private readonly HubDbContext _context;
 
         private readonly JobTitle _nullJob;
-        private readonly List<Employee> _nullDeptEmployees;
+        private readonly List<Employee> _nullJobEmployees;
         private readonly Employee _nullEmp;
 
         public JobTitleRepository(HubDbContext context)
@@ -26,7 +26,7 @@ namespace hub.dal.repository.directory
                 EmployeeId = -1,
                 Username = ""
             };
-            _nullDeptEmployees = new List<Employee>
+            _nullJobEmployees = new List<Employee>
             {
                 _nullEmp
             };
@@ -34,7 +34,7 @@ namespace hub.dal.repository.directory
             {
                 JobTitleId = -1,
                 JobTitleName = "",
-                Employees = _nullDeptEmployees
+                Employees = _nullJobEmployees
             };
         }
 

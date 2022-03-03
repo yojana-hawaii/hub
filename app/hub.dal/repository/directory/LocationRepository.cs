@@ -13,7 +13,7 @@ namespace hub.dal.repository.directory
         private readonly HubDbContext _context;
 
         private readonly Location _nulllLoc;
-        private readonly List<Employee> _nullDeptEmployees;
+        private readonly List<Employee> _nullLocEmployees;
         private readonly Employee _nullEmp;
 
         public LocationRepository(HubDbContext context)
@@ -26,7 +26,7 @@ namespace hub.dal.repository.directory
                 EmployeeId = -1,
                 Username = ""
             };
-            _nullDeptEmployees = new List<Employee>
+            _nullLocEmployees = new List<Employee>
             {
                 _nullEmp
             };
@@ -34,7 +34,7 @@ namespace hub.dal.repository.directory
             {
                 LocationId = -1,
                 LocationName = "",
-                Employees = _nullDeptEmployees
+                Employees = _nullLocEmployees
             };
         }
 

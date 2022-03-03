@@ -1,5 +1,4 @@
 ﻿using hub.dal.interfaces.directory;
-using hub.dal.shared;
 using hub.domain.model.directory;
 using hub.mvc.Models;
 using hub.mvc.ViewModel;
@@ -31,18 +30,11 @@ namespace hub.mvc.Controllers
         //Search could be firstname lastname, dept, job, phone etc. so combine all into a sql field keyword
         public IActionResult Index(IndexViewModel viewModelParameter)
         {
-            /* call static method in static class without creating new object
-            clean up user input
-             -> remove whitespace in the beginging and the end
-             -> remove special characters
-            */
-            var searchKeyword = UserInputValidation.GetUserInputWithoutSpecialCharacterAndWhitespaces(viewModelParameter.SearchKeyword);
-
-            IEnumerable<Employee> employees = _employee.GetEmployeeByKeywordSearch(searchKeyword);
+            IEnumerable<Employee> employees = _employee.GetEmployeeByKeywordSearch(viewModelParameter.SearchKeyword);
 
             var indexViewModel = ConvertToIndexViewModel(employees);
 
-            indexViewModel.SearchKeyword = searchKeyword;
+            indexViewModel.SearchKeyword = viewModelParameter.SearchKeyword;
             indexViewModel.EmployeeSwitch = viewModelParameter.EmployeeSwitch;
             indexViewModel.FaxSwitch = viewModelParameter.FaxSwitch;
             indexViewModel.VendorSwitch = viewModelParameter.VendorSwitch;

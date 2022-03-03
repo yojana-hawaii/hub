@@ -194,23 +194,32 @@ namespace hub.dal.repository.directory
 
             if (!string.IsNullOrEmpty(searchKeyword))
             {
+                
+                /* call static method in static class without creating new object
+                clean up user input
+                 -> remove whitespace in the beginging and the end
+                 -> remove special characters
+                */
                 searchKeyword = UserInputValidation.GetUserInputWithoutSpecialCharacterAndWhitespaces(searchKeyword);
 
+                //if two space in a row in user input -> split takes one space as part if input -> space always returns entire all employees
+                //Where after split removes those empty string after split and convert to list.
                 List<string> searchList = searchKeyword.Split(' ').Where(str => !string.IsNullOrWhiteSpace(str)).ToList();
 
                 selectEmployees = allEmployees
                                 .Where(
-                                e => (e.LastName != null && searchList.Any(term => e.LastName.ToLower().Contains(term)))
-                                    || (e.FirstName != null && searchList.Any(term => e.FirstName.ToLower().Contains(term)))
-                                    || (e.Extension != null && searchList.Any(term => e.Extension.ToLower().Contains(term)))
-                                    || (e.FullNumber != null && searchList.Any(term => e.FullNumber.ToLower().Contains(term)))
-                                    || (e.Email != null && searchList.Any(term => e.Email.ToLower().Contains(term)))
-                                    || (e.JobTitle != null && searchList.Any(term => e.JobTitle.JobTitleName.ToLower().Contains(term)))
-                                    || (e.Department != null && searchList.Any(term => e.Department.DepartmentName.ToLower().Contains(term)))
-                                    || (e.Location != null && searchList.Any(term => e.Location.LocationName.ToLower().Contains(term)))
+                                    e => (e.LastName != null && searchList.Any(term => e.LastName.ToLower().Contains(term)))
+                                        || (e.FirstName != null && searchList.Any(term => e.FirstName.ToLower().Contains(term)))
+                                        || (e.Extension != null && searchList.Any(term => e.Extension.ToLower().Contains(term)))
+                                        || (e.FullNumber != null && searchList.Any(term => e.FullNumber.ToLower().Contains(term)))
+                                        || (e.Email != null && searchList.Any(term => e.Email.ToLower().Contains(term)))
+                                        || (e.JobTitle != null && searchList.Any(term => e.JobTitle.JobTitleName.ToLower().Contains(term)))
+                                        || (e.Department != null && searchList.Any(term => e.Department.DepartmentName.ToLower().Contains(term)))
+                                        || (e.Location != null && searchList.Any(term => e.Location.LocationName.ToLower().Contains(term)))
                                 );
 
             }
+            //if list is empty, nothing returns so if employee count == 0 return all employee -> can remove this as 
             if (selectEmployees.Count() == 0) selectEmployees = allEmployees;
 
 

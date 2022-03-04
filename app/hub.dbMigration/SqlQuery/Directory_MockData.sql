@@ -15,6 +15,11 @@ delete from Locations
 dbcc checkident('Locations', reseed, 0)
 GO
 
+delete from FaxNumbers
+dbcc checkident('Faxnumbers', reseed, 0)
+go
+
+
 INSERT INTO Departments(DepartmentName) 
 VALUES('IT'),('Accouting'),('Billing'),('Exec');
 SELECT* FROM Departments;
@@ -29,6 +34,14 @@ go
 insert into Locations(LocationName)
 values('Secondary'),('Main'), ('Remote');
 select * from Locations;
+go
+
+insert into FaxNumbers(FaxName, Number, LocationId, DepartmentId)
+values('IT', '123-9856', 1, 1),
+('payroll', '6653532', 2, null),
+('billing', '123-2125', null, 3),
+('exec', '1238654', 3, 4);
+select * from FaxNumbers;
 go
 
 insert into Employees

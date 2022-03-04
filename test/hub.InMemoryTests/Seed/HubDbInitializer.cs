@@ -1,6 +1,5 @@
 ﻿using hub.dbMigration.dbContext;
 using hub.domain.model.directory;
-using System;
 using System.Linq;
 
 namespace hub.InMemoryTests.Seed
@@ -19,6 +18,32 @@ namespace hub.InMemoryTests.Seed
                 SeedLocation(_context);
             if (!_context.Employees.Any())
                 SeedEmployees(_context);
+            if (!_context.FaxNumbers.Any())
+                SeedFaxNumbers(_context);
+        }
+
+        private static void SeedFaxNumbers(HubDbContext context)
+        {
+            var faxes = new[]
+            {
+                new FaxNumber
+                {
+                    FaxId = 1, FaxName = "IT", DepartmentId = 1, LocationId = 1,
+                    Number = "125-8956"
+                },
+                new FaxNumber
+                {
+                    FaxId = 2, FaxName = "acct", LocationId = 2, DepartmentId = null,
+                    Number = null
+                },
+                new FaxNumber
+                {
+                    FaxId = 3, FaxName = "exec", LocationId = null, DepartmentId = 3,
+                    Number = "968524"
+                }
+            };
+            context.FaxNumbers.AddRange(faxes);
+            context.SaveChanges();
         }
 
         private static void SeedEmployees(HubDbContext context)

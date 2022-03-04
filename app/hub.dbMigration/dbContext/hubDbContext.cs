@@ -13,8 +13,8 @@ namespace hub.dbMigration.dbContext
         public DbSet<JobTitle> JobTitles { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Location> Locations { get; set; }
+        public DbSet<FaxNumber> FaxNumbers { get; set; }
         //public DbSet<Specialist> Specialists { get; set; }
-        //public DbSet<Fax> Fax { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

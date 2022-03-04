@@ -12,5 +12,6 @@ namespace hub.domain.model.directory
         public string LocationName { get; set; }
 
         public IEnumerable<Employee> Employees { get; set; }
+        public IEnumerable<FaxNumber> FaxNumbers { get; set; }
     }
 }

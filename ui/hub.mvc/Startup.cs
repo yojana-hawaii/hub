@@ -36,6 +36,7 @@ namespace hub.mvc
             services.AddScoped<ILocation, LocationRepository>();
             services.AddScoped<IJobTitle, JobTitleRepository>();
             services.AddScoped<IDepartment, DepartmentRepository>();
+            services.AddScoped<IFaxNumber, FaxNumberRepository>();
 
             // use open id connect with adfs
             services.AddAuthentication(options =>

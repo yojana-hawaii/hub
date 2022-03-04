@@ -56,10 +56,10 @@ namespace hub.mvc.Controllers
         }
 
         //Helper function to create view model
-        private IEnumerable<EmployeeViewModel> ConvertToEmployeeViewModel(IEnumerable<Employee> employees)
+        private IEnumerable<DirectoryViewModel> ConvertToEmployeeViewModel(IEnumerable<Employee> employees)
         {
             var empViewModel = employees
-                .Select(emp => new EmployeeViewModel
+                .Select(emp => new DirectoryViewModel
                 {
                     EmployeeId = emp.EmployeeId,
                     Name = _employee.GetFullName(emp.EmployeeId),

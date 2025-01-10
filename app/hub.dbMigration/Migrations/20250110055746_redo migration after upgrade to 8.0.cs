@@ -1,17 +1,21 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
+
 namespace hub.dbMigration.Migrations
 {
-    public partial class initial : Migration
+    /// <inheritdoc />
+    public partial class redomigrationafterupgradeto80 : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
                 name: "Departments",
                 columns: table => new
                 {
-                    DepartmentId = table.Column<int>(nullable: false)
+                    DepartmentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DepartmentName = table.Column<string>(type: "varchar(50)", nullable: false)
                 },
@@ -24,7 +28,7 @@ namespace hub.dbMigration.Migrations
                 name: "JobTitles",
                 columns: table => new
                 {
-                    JobTitleId = table.Column<int>(nullable: false)
+                    JobTitleId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     JobTitleName = table.Column<string>(type: "varchar(50)", nullable: false)
                 },
@@ -37,7 +41,7 @@ namespace hub.dbMigration.Migrations
                 name: "Locations",
                 columns: table => new
                 {
-                    LocationId = table.Column<int>(nullable: false)
+                    LocationId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     LocationName = table.Column<string>(type: "varchar(50)", nullable: false)
                 },
@@ -50,24 +54,24 @@ namespace hub.dbMigration.Migrations
                 name: "Employees",
                 columns: table => new
                 {
-                    EmployeeId = table.Column<int>(nullable: false)
+                    EmployeeId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(nullable: false),
-                    Email = table.Column<string>(nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     AccountCreated = table.Column<DateTime>(type: "DateTime2", nullable: false),
                     FirstName = table.Column<string>(type: "varchar(50)", nullable: false),
                     LastName = table.Column<string>(type: "varchar(50)", nullable: false),
                     Extension = table.Column<string>(type: "varchar(50)", nullable: true),
                     FullNumber = table.Column<string>(type: "varchar(50)", nullable: true),
-                    Keyword = table.Column<string>(nullable: true),
+                    Keyword = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     HireDate = table.Column<DateTime>(type: "DateTime2", nullable: true),
                     NickName = table.Column<string>(type: "varchar(50)", nullable: true),
                     EmployeeNumber = table.Column<string>(type: "varchar(50)", nullable: true),
                     PhotoPath = table.Column<string>(type: "varchar(50)", nullable: true),
-                    JobTitleId = table.Column<int>(nullable: true),
-                    DepartmentId = table.Column<int>(nullable: true),
-                    LocationId = table.Column<int>(nullable: true),
-                    PrimaryManagerId = table.Column<int>(nullable: true)
+                    JobTitleId = table.Column<int>(type: "int", nullable: true),
+                    DepartmentId = table.Column<int>(type: "int", nullable: true),
+                    LocationId = table.Column<int>(type: "int", nullable: true),
+                    PrimaryManagerId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -81,6 +85,12 @@ namespace hub.dbMigration.Migrations
                         principalColumn: "DepartmentId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Employees_Employees_PrimaryManagerId",
+                        column: x => x.PrimaryManagerId,
+                        principalTable: "Employees",
+                        principalColumn: "EmployeeId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_Employees_JobTitles_JobTitleId",
                         column: x => x.JobTitleId,
                         principalTable: "JobTitles",
@@ -92,11 +102,33 @@ namespace hub.dbMigration.Migrations
                         principalTable: "Locations",
                         principalColumn: "LocationId",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FaxNumbers",
+                columns: table => new
+                {
+                    FaxId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FaxName = table.Column<string>(type: "varchar(50)", nullable: true),
+                    Number = table.Column<string>(type: "varchar(50)", nullable: false),
+                    LocationId = table.Column<int>(type: "int", nullable: true),
+                    DepartmentId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FaxNumbers", x => x.FaxId);
                     table.ForeignKey(
-                        name: "FK_Employees_Employees_PrimaryManagerId",
-                        column: x => x.PrimaryManagerId,
-                        principalTable: "Employees",
-                        principalColumn: "EmployeeId",
+                        name: "FK_FaxNumbers_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "DepartmentId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FaxNumbers_Locations_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Locations",
+                        principalColumn: "LocationId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -119,18 +151,32 @@ namespace hub.dbMigration.Migrations
                 name: "IX_Employees_PrimaryManagerId",
                 table: "Employees",
                 column: "PrimaryManagerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FaxNumbers_DepartmentId",
+                table: "FaxNumbers",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FaxNumbers_LocationId",
+                table: "FaxNumbers",
+                column: "LocationId");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "Employees");
 
             migrationBuilder.DropTable(
-                name: "Departments");
+                name: "FaxNumbers");
 
             migrationBuilder.DropTable(
                 name: "JobTitles");
+
+            migrationBuilder.DropTable(
+                name: "Departments");
 
             migrationBuilder.DropTable(
                 name: "Locations");

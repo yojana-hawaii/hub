@@ -7,26 +7,31 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using hub.dbMigration.dbContext;
 
+#nullable disable
+
 namespace hub.dbMigration.Migrations
 {
     [DbContext(typeof(HubDbContext))]
-    [Migration("20220219025755_initial")]
-    partial class initial
+    [Migration("20250110055746_redo migration after upgrade to 8.0")]
+    partial class redomigrationafterupgradeto80
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.22")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("hub.domain.model.directory.Department", b =>
                 {
                     b.Property<int>("DepartmentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DepartmentId"));
 
                     b.Property<string>("DepartmentName")
                         .IsRequired()
@@ -41,8 +46,9 @@ namespace hub.dbMigration.Migrations
                 {
                     b.Property<int>("EmployeeId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeId"));
 
                     b.Property<DateTime>("AccountCreated")
                         .HasColumnType("DateTime2");
@@ -113,12 +119,43 @@ namespace hub.dbMigration.Migrations
                     b.ToTable("Employees");
                 });
 
+            modelBuilder.Entity("hub.domain.model.directory.FaxNumber", b =>
+                {
+                    b.Property<int>("FaxId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FaxId"));
+
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FaxName")
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int?>("LocationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("FaxId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("FaxNumbers");
+                });
+
             modelBuilder.Entity("hub.domain.model.directory.JobTitle", b =>
                 {
                     b.Property<int>("JobTitleId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("JobTitleId"));
 
                     b.Property<string>("JobTitleName")
                         .IsRequired()
@@ -133,8 +170,9 @@ namespace hub.dbMigration.Migrations
                 {
                     b.Property<int>("LocationId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LocationId"));
 
                     b.Property<string>("LocationName")
                         .IsRequired()
@@ -166,6 +204,55 @@ namespace hub.dbMigration.Migrations
                         .WithMany("PrimaryStaff")
                         .HasForeignKey("PrimaryManagerId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Department");
+
+                    b.Navigation("JobTitle");
+
+                    b.Navigation("Location");
+
+                    b.Navigation("PrimaryManager");
+                });
+
+            modelBuilder.Entity("hub.domain.model.directory.FaxNumber", b =>
+                {
+                    b.HasOne("hub.domain.model.directory.Department", "Department")
+                        .WithMany("FaxNumbers")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("hub.domain.model.directory.Location", "Location")
+                        .WithMany("FaxNumbers")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("hub.domain.model.directory.Department", b =>
+                {
+                    b.Navigation("Employees");
+
+                    b.Navigation("FaxNumbers");
+                });
+
+            modelBuilder.Entity("hub.domain.model.directory.Employee", b =>
+                {
+                    b.Navigation("PrimaryStaff");
+                });
+
+            modelBuilder.Entity("hub.domain.model.directory.JobTitle", b =>
+                {
+                    b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("hub.domain.model.directory.Location", b =>
+                {
+                    b.Navigation("Employees");
+
+                    b.Navigation("FaxNumbers");
                 });
 #pragma warning restore 612, 618
         }

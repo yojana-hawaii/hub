@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +29,7 @@ namespace hub.mvc
         {
             services.AddDbContext<HubDbContext>(
                 options => options.UseSqlServer(
-                    Configuration.GetConnectionString("LocalDbConnection")
+                    Configuration.GetConnectionString("localdb")
                     )
                 );
             services.AddSingleton(Configuration);
@@ -39,46 +40,51 @@ namespace hub.mvc
             services.AddScoped<IFaxNumber, FaxNumberRepository>();
 
             // use open id connect with adfs
-            services.AddAuthentication(options =>
-            {
-                //  check if user has authentication cookie -> if they dont then default is open id connect
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            })
-            .AddOpenIdConnect(options =>
-            {
-                // from appsettings.json or secret
-                options.MetadataAddress = Configuration["Adfs:address"];
-                options.ClientId = Configuration["Adfs:clientId"];
+            //services.AddAuthentication(options =>
+            //{
+            //    //  check if user has authentication cookie -> if they dont then default is open id connect
+            //    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //    //options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            //})
+            //.AddOpenIdConnect(options =>
+            //{
+            //    // from appsettings.json or secret
+            //    options.MetadataAddress = Configuration["Adfs:address"];
+            //    options.ClientId = Configuration["Adfs:clientId"];
 
-                options.SignInScheme = "Cookies";
-                options.RequireHttpsMetadata = true;
-                options.ResponseType = OpenIdConnectResponseType.Code;
-                options.UsePkce = false;
+            //    options.SignInScheme = "Cookies";
+            //    options.RequireHttpsMetadata = true;
+            //    options.ResponseType = OpenIdConnectResponseType.Code;
+            //    options.UsePkce = false;
 
-                options.Scope.Clear();
-                options.Scope.Add("openid");
+            //    options.Scope.Clear();
+            //    options.Scope.Add("openid");
 
 
-                options.SaveTokens = true;
-            })
-            .AddCookie(options =>
-            {
-                options.AccessDeniedPath = "/";
-            }
-            );
+            //    options.SaveTokens = true;
+            //})
+            //.AddCookie(options =>
+            //{
+            //    options.AccessDeniedPath = "/";
+            //});
 
-            //mapping AD user to claims role.
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("TestAdmin", policyBuilder =>
-                    policyBuilder.RequireClaim(ClaimTypes.Role, "Test Admin")
-                );
-                options.AddPolicy("TestUser", policyBuilder =>
-                    policyBuilder.RequireClaim(ClaimTypes.Role, "Test User")
-                );
-            });
-            services.AddControllersWithViews();
+            ////mapping AD user to claims role.
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("TestAdmin", policyBuilder =>
+            //        policyBuilder.RequireClaim(ClaimTypes.Role, "Test Admin")
+            //    );
+            //    options.AddPolicy("TestUser", policyBuilder =>
+            //        policyBuilder.RequireClaim(ClaimTypes.Role, "Test User")
+            //    );
+            //});
+
+            //add authorize to each controller or method -> each top miss.
+            //services.AddControllersWithViews();
+
+            //entire application needs authentication -> [AllowAnonymous] decorator for controller and method that dont need authentication
+            services.AddControllersWithViews(options => options.Filters.Add(new AuthorizeFilter()));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -99,8 +105,8 @@ namespace hub.mvc
 
             app.UseRouting();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            //app.UseAuthentication();
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

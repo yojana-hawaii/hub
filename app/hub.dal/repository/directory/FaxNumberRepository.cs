@@ -49,6 +49,30 @@ namespace hub.dal.repository.directory
                 .Include(f => f.Department)
                 .Include(f => f.Location);
         }
+        public FaxNumber GetFaxNumberById(int faxId)
+        {
+            var fax = GetAllFaxNumbers()
+                .FirstOrDefault(f => f.FaxId == faxId);
+            if (fax is null)
+                fax = GetNullFaxNumber();
+            return fax;
+        }
+
+        public string GetFaxDepartment(int faxId)
+        {
+            var dept = GetFaxNumberById(faxId).Department;
+            if (dept is null)
+                dept = GetNullFaxNumber().Department;
+            return dept.DepartmentName;
+        }
+
+        public string GetFaxLocation(int faxId)
+        {
+            var loc = GetFaxNumberById(faxId).Location;
+            if (loc is null)
+                loc = GetNullFaxNumber().Location;
+            return loc.LocationName;
+        }
 
         public IEnumerable<FaxNumber> GetFaxNumberByKeywordSearch(string searchKeyword)
         {
@@ -68,10 +92,21 @@ namespace hub.dal.repository.directory
                             || (f.Number != null && searchList.Any(term => f.Number.ToLower().Contains(term)))
                     );
 
-                if (selectFaxes.Count() == 0) selectFaxes = allFaxes;
+            }
+            else
+            {
+                selectFaxes = new List<FaxNumber>()
+                {
+                    GetNullFaxNumber()
+                };
             }
 
+            if (selectFaxes.Count() == 0) selectFaxes = allFaxes;
             return selectFaxes;
         }
+
+
+
+
     }
 }

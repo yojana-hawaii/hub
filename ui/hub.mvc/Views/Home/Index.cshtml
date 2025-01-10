@@ -5,7 +5,7 @@
 
 <div class="container mb-lg-5">
     <form asp-controller="Home" asp-action="Index" method="post">
-        <div class="input-group">
+        @*<div class="input-group">
             <div class="custom-control custom-switch ml-5">
                 <input class="custom-control-input" asp-for="@Model.EmployeeSwitch" />
                 <label class="custom-control-label" asp-for="@Model.EmployeeSwitch">Include Emplooyee</label>
@@ -18,6 +18,18 @@
                 <input class="custom-control-input" asp-for="@Model.VendorSwitch" />
                 <label class="custom-control-label" asp-for="@Model.VendorSwitch">Include Vendor</label>
             </div>
+        </div>*@
+
+
+
+        @*https://codepen.io/JiveDig/pen/jbdJXR*@
+        <div class="codepen-switch-field">
+            <input type="radio" id="radio-one" name="switch" value="yes" checked />
+            <label for="radio-one">One</label>
+            <input type="radio" id="radio-two" name="switch" value="maybe" />
+            <label for="radio-two">Two</label>
+            <input type="radio" id="radio-three" name="switch" value="no" />
+            <label for="radio-three">Three</label>
         </div>
 
         <div class="input-group mb-3 mt-3">
@@ -33,12 +45,12 @@
 
 
 <h5 class="container-fluid text-sm-left text-success">
-    @Model.EmployeeViewModels.Count() employee(s).
+    @Model.DirectoryViewModels.Count() employee(s).
 </h5>
 
 <div class="table-responsive">
     <table class="table table-borderless table-striped table-hover">
-        @if (Model.EmployeeViewModels.Count() == 0)
+        @if (Model.DirectoryViewModels.Count() == 0)
         {
             <tr>
                 <td colspan="10">No Record Found.</td>
@@ -53,10 +65,10 @@
                     <th scope="col">Email</th>
                     <th scope="col">Department</th>
                     <th scope="col">Title</th>
-                    <th scope="col">Phone</th>
+                    <th scope="col">Number</th>
                 </tr>
             </thead>
-            @foreach (var employee in Model.EmployeeViewModels)
+            @foreach (var employee in Model.DirectoryViewModels)
             {
                 <tr>
                     <td>@employee.Name</td>
@@ -64,7 +76,7 @@
                     <td>@employee.Email</td>
                     <td>@employee.Department </td>
                     <td>@employee.JobTitle </td>
-                    <td>@employee.Phone</td>
+                    <td>@employee.Number</td>
                 </tr>
             }
         }

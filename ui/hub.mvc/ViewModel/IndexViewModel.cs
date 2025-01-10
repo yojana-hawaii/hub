@@ -7,7 +7,7 @@ namespace hub.mvc.ViewModel
 {
     public class IndexViewModel
     {
-        public IEnumerable<DirectoryViewModel> EmployeeViewModels { get; set; }
+        public IEnumerable<DirectoryViewModel> DirectoryViewModels { get; set; }
         public string SearchKeyword { get; set; } = "";
         public bool EmployeeSwitch { get; set; } = true;
         public bool VendorSwitch { get; set; } = false;
